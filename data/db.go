@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"os"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
@@ -134,10 +135,10 @@ func newDB(config *DBConfig) *DB {
 
 func Connect() *DB {
 	config := DBConfig{
-		Host: "mysql8",
-		User: "root",
-		Password: "password",
-		Database: "db",
+		Host: os.Getenv("DB_HOST"),
+		User: os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASSWORD"),
+		Database: os.Getenv("DB_NAME"),
 	}
 
 	db := newDB(&config)
