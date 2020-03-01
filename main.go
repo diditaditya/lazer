@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	data "lazer/data"
-	server "lazer/server"
 	laze "lazer/laze"
+	server "lazer/server"
 )
 
 func main() {
