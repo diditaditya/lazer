@@ -5,7 +5,7 @@ type Repo interface {
 	FindAll(name string) ([]map[string]interface{}, error)
 }
 
-type RepoException interface {
+type Exception interface {
 	Message() string
 	Code() string
 }

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+
+	dataError "lazer/data/error"
 )
 
 type DB struct {
@@ -29,12 +31,12 @@ func (db *DB) GetTableNames() []string {
 	return tableNames
 }
 
-func (db *DB) FindAll(tableName string) ([]map[string]interface{}, Exception) {
+func (db *DB) FindAll(tableName string) ([]map[string]interface{}, error) {
 	if table, ok := db.tables[tableName]; ok {
 		return table.FindAll(), nil
 	}
 
-	return nil, errors.New("table not found") 
+	return nil, dataError.New("NOTFOUND", "table not found") 
 }
 
 func (db *DB) Tables() map[string]*Table {
