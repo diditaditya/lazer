@@ -14,6 +14,7 @@ type Table struct {
 	conn *gorm.DB
 	ColumnNames []string
 	RawColumns map[string]RawColumn
+	Pk string
 }
 
 type RawColumn struct {
@@ -23,6 +24,15 @@ type RawColumn struct {
 	Key string
 	Default string
 	Extra string
+}
+
+func (table *Table) getPkColumn() {
+	for k,v := range table.RawColumns {
+		if v.Key == "PRI" {
+			table.Pk = k
+			break
+		}
+	}
 }
 
 func (table *Table) transform(rows *sql.Rows) []map[string]interface{} {
@@ -80,6 +90,7 @@ func (table *Table) transform(rows *sql.Rows) []map[string]interface{} {
 }
 
 func (table *Table) FindAll() []map[string]interface{} {
+	table.FindByPk()
 	rows, err := table.conn.Table(table.name).Rows()
 
 	defer rows.Close()

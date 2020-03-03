@@ -67,6 +67,7 @@ func (db *DB) GetAllTables() {
 			ColumnNames: columnNames,
 			RawColumns: rawColumns,
 		}
+		table.getPkColumn()
 		db.tables[tableNames[i]] = &table
 	}
 	fmt.Printf("[DB] tables: %v\n", db.tables)
