@@ -40,6 +40,14 @@ func (db *DB) FindAll(tableName string) ([]map[string]interface{}, error) {
 	return nil, dataError.New("NOTFOUND", "table not found") 
 }
 
+func (db *DB) FindByPk(tableName string, value string) (map[string]interface{}, error) {
+	if table, ok := db.tables[tableName]; ok {
+		return table.FindByPk(value), nil
+	}
+
+	return nil, dataError.New("NOTFOUND", "table not found")
+}
+
 func (db *DB) Tables() map[string]*Table {
 	return db.tables
 }

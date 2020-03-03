@@ -16,6 +16,11 @@ func (app *App) FindAll(tableName string) ([]map[string]interface{}, error) {
 	return result, err
 }
 
+func (app *App) FindByPk(tableName string, value string) (map[string]interface{}, error) {
+	result, err := app.data.FindByPk(tableName, value)
+	return result, err
+}
+
 func (app *App) GetAllTables() []string {
 	result := app.data.GetTableNames()
 	return result

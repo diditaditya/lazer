@@ -90,7 +90,6 @@ func (table *Table) transform(rows *sql.Rows) []map[string]interface{} {
 }
 
 func (table *Table) FindAll() []map[string]interface{} {
-	table.FindByPk()
 	rows, err := table.conn.Table(table.name).Rows()
 
 	defer rows.Close()
@@ -104,3 +103,23 @@ func (table *Table) FindAll() []map[string]interface{} {
 
 	return data
 }
+
+func (table *Table) FindByPk(value string) map[string]interface{} {
+	condition := fmt.Sprintf("%s = ?", table.Pk)
+	rows, err := table.conn.Table(table.name).Where(condition, value).Rows()
+
+	defer rows.Close()
+
+	if err != nil {
+		fmt.Println("[DB] error fetching ", table.name)
+		fmt.Println(err)
+	}
+
+	data := table.transform(rows)
+
+	if len(data) > 0 {
+		return data[0]
+	}
+
+	return map[string]interface{}{}
+} 
