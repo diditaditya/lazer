@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is mere a fun project of utter laziness. Essentially the app directly read the mysql database table and it can then be requested through http. Nothing fancy. Just so the *backend* ready without writing any structs for each table, then go back lazing around wholeheartedly.
+This is mere a fun project of utter laziness. Essentially the app directly *reads* the mysql database table and it can then be requested through http. Nothing fancy. Just so the *backend* ready without writing any structs for each table, then go back lazing around wholeheartedly.
 
 ## Development
 
