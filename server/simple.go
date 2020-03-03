@@ -10,6 +10,17 @@ type Handler struct {
 	app *laze.App
 }
 
+func (handler *Handler) rootHandler(c *gin.Context) {
+	data := handler.app.GetAllTables()
+
+	resp := map[string]interface{}{
+		"message": "welcome",
+		"data": data,
+	}
+
+	c.JSON(200, resp)
+}
+
 func (handler *Handler) defaultHandler(c *gin.Context) {
 	tableName := c.Param("name")
 
@@ -29,16 +40,15 @@ func (handler *Handler) defaultHandler(c *gin.Context) {
 	
 		c.JSON(200, resp)
 	}
-
-	
 }
 
 func Start(app *laze.App) {
-	r := gin.Default()
+	router := gin.Default()
 
 	handler := Handler{app: app}
 
-	r.GET("/:name", handler.defaultHandler)
+	router.GET("/", handler.rootHandler)
+	router.GET("/:name", handler.defaultHandler)
 
-	r.Run()
+	router.Run()
 }

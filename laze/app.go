@@ -15,3 +15,8 @@ func (app *App) FindAll(tableName string) ([]map[string]interface{}, error) {
 	result, err := app.data.FindAll(tableName)
 	return result, err
 }
+
+func (app *App) GetAllTables() []string {
+	result := app.data.GetTableNames()
+	return result
+}
