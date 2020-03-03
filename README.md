@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is mere a fun project of utter laziness. Essentially the app directly read the database table and it can then be requested through http. Nothing fancy. Just so the *backend* ready without writing any structs for each table, then go back lazing around wholeheartedly.
+This is mere a fun project of utter laziness. Essentially the app directly read the mysql database table and it can then be requested through http. Nothing fancy. Just so the *backend* ready without writing any structs for each table, then go back lazing around wholeheartedly.
 
 ## Development
 
@@ -34,4 +34,4 @@ DB_PASSWORD=thedbpassword
 DB_NAME=thedbname
 ```
 
-Start the app again, and you can access the app from your browser or whatever at `localhost:3500`. If you want to change the port just change the `docker-compose.yml` which maps default `gin` port at 8080 to 3500.
+Start the app again, and you can access the app from your browser or whatever at `localhost:3500`. If you want to change the port just change the `docker-compose.yml` which maps default `gin` port at 8080 to 3500. Or just experiment with [traefik](https://docs.traefik.io/) to access it from your localhost with subdomain, which is cool and helpful, so you don't need to care about clashing ports.
