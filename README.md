@@ -2,7 +2,7 @@
 
 ## Overview
 
-Too lazy to write overview lol
+This is mere a fun project of utter laziness. Essentially the app directly read the database table and it can then be requested through http. Nothing fancy. Just so the *backend* ready without writing any structs for each table, then go back lazing around wholeheartedly.
 
 ## Development
 
@@ -33,3 +33,5 @@ DB_USER=thedbuser
 DB_PASSWORD=thedbpassword
 DB_NAME=thedbname
 ```
+
+Start the app again, and you can access the app from your browser or whatever at `localhost:3500`. If you want to change the port just change the `docker-compose.yml` which maps default `gin` port at 8080 to 3500.
