@@ -48,6 +48,19 @@ func (db *DB) FindByPk(tableName string, value string) (map[string]interface{}, 
 	return nil, dataError.New("NOTFOUND", "table not found")
 }
 
+func (db *DB) Create(tableName string, data map[string]interface{}) (map[string]interface{}, error) {
+	var table *Table
+	if checked, ok := db.tables[tableName]; ok {
+		table = checked
+	} else {
+		return nil, dataError.New("NOTFOUND", "table not found")
+	}
+
+	result := table.Create(data)
+
+	return result, nil
+}
+
 func (db *DB) Tables() map[string]*Table {
 	return db.tables
 }
@@ -163,6 +176,7 @@ func Connect() *DB {
 	db.Connection = connection
 
 	db.GetAllTables()
+	db.Connection.LogMode(true)
 
 	return db
 }

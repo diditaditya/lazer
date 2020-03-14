@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	laze "lazer/laze"
 )
@@ -10,7 +11,7 @@ type Handler struct {
 	app *laze.App
 }
 
-func (handler *Handler) rootHandler(c *gin.Context) {
+func (handler *Handler) root(c *gin.Context) {
 	data := handler.app.GetAllTables()
 
 	resp := map[string]interface{}{
@@ -21,7 +22,7 @@ func (handler *Handler) rootHandler(c *gin.Context) {
 	c.JSON(200, resp)
 }
 
-func (handler *Handler) pkHandler(c *gin.Context) {
+func (handler *Handler) getByPk(c *gin.Context) {
 	tableName := c.Param("name")
 	pk := c.Param("pk")
 
@@ -43,7 +44,7 @@ func (handler *Handler) pkHandler(c *gin.Context) {
 	}
 }
 
-func (handler *Handler) defaultHandler(c *gin.Context) {
+func (handler *Handler) getAll(c *gin.Context) {
 	tableName := c.Param("name")
 
 	data, err := handler.app.FindAll(tableName)
@@ -64,14 +65,53 @@ func (handler *Handler) defaultHandler(c *gin.Context) {
 	}
 }
 
+func (handler *Handler) create(c *gin.Context) {
+	tableName := c.Param("name")
+	raw, err := c.GetRawData()
+
+	if err != nil {
+		c.JSON(400, map[string]interface{}{
+			"message": "your fault..",
+			"error": err,
+		})
+	}
+
+	mapped := make(map[string]interface{})
+
+	err = json.Unmarshal(raw, &mapped)
+
+	if err != nil {
+		c.JSON(500, map[string]interface{}{
+			"message": "error unmarshaling the body",
+			"error": err,
+		})
+	}
+
+	data, err := handler.app.Create(tableName, mapped)
+
+	if err != nil {
+		c.JSON(500, map[string]interface{}{
+			"message": "error something idk..",
+			"error": err,
+		})
+	}
+
+	c.JSON(200, map[string]interface{}{
+		"message": "not sure what happenin..",
+		"data": data,
+	})
+}
+
 func Start(app *laze.App) {
 	router := gin.Default()
 
 	handler := Handler{app: app}
 
-	router.GET("/", handler.rootHandler)
-	router.GET("/:name", handler.defaultHandler)
-	router.GET("/:name/:pk", handler.pkHandler)
+	router.GET("/", handler.root)
+	router.GET("/:name", handler.getAll)
+	router.GET("/:name/:pk", handler.getByPk)
+
+	router.POST("/:name", handler.create)
 
 	router.Run()
 }

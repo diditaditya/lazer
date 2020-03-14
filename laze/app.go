@@ -25,3 +25,11 @@ func (app *App) GetAllTables() []string {
 	result := app.data.GetTableNames()
 	return result
 }
+
+func (app *App) Create(tableName string, data map[string]interface{}) (map[string]interface{}, error) {
+	result, err := app.data.Create(tableName, data)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
