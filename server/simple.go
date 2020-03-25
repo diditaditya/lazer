@@ -87,7 +87,7 @@ func (handler *Handler) create(c *gin.Context) {
 		})
 	}
 
-	data, err := handler.app.Create(tableName, mapped)
+	_, err = handler.app.Create(tableName, mapped)
 
 	if err != nil {
 		c.JSON(500, map[string]interface{}{
@@ -97,8 +97,7 @@ func (handler *Handler) create(c *gin.Context) {
 	}
 
 	c.JSON(200, map[string]interface{}{
-		"message": "not sure what happenin..",
-		"data": data,
+		"message": "created..",
 	})
 }
 

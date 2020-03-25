@@ -6,7 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
-	dataError "lazer/data/error"
+	exception "lazer/error"
 )
 
 type DB struct {
@@ -37,7 +37,7 @@ func (db *DB) FindAll(tableName string) ([]map[string]interface{}, error) {
 		return table.FindAll(), nil
 	}
 
-	return nil, dataError.New("NOTFOUND", "table not found") 
+	return nil, exception.New(exception.Names.NOTFOUND, "table not found")
 }
 
 func (db *DB) FindByPk(tableName string, value string) (map[string]interface{}, error) {
@@ -45,7 +45,7 @@ func (db *DB) FindByPk(tableName string, value string) (map[string]interface{}, 
 		return table.FindByPk(value), nil
 	}
 
-	return nil, dataError.New("NOTFOUND", "table not found")
+	return nil, exception.New(exception.Names.NOTFOUND, "table not found")
 }
 
 func (db *DB) Create(tableName string, data map[string]interface{}) (map[string]interface{}, error) {
@@ -53,7 +53,7 @@ func (db *DB) Create(tableName string, data map[string]interface{}) (map[string]
 	if checked, ok := db.tables[tableName]; ok {
 		table = checked
 	} else {
-		return nil, dataError.New("NOTFOUND", "table not found")
+		return nil, exception.New(exception.Names.NOTFOUND, "table not found")
 	}
 
 	result := table.Create(data)

@@ -8,6 +8,8 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+
+	exception "lazer/error"
 )
 
 type Table struct {
