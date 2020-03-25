@@ -47,6 +47,8 @@ func (handler *Handler) getByPk(c *gin.Context) {
 func (handler *Handler) getAll(c *gin.Context) {
 	tableName := c.Param("name")
 
+	fmt.Printf("%v\n", c.Query)
+
 	data, err := handler.app.FindAll(tableName)
 
 	if err != nil {

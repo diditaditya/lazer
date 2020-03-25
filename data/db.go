@@ -32,28 +32,33 @@ func (db *DB) GetTableNames() []string {
 	return tableNames
 }
 
-func (db *DB) FindAll(tableName string) ([]map[string]interface{}, error) {
+func (db *DB) FindAll(tableName string) ([]map[string]interface{}, *exception.Exception) {
 	if table, ok := db.tables[tableName]; ok {
 		return table.FindAll(), nil
 	}
 
-	return nil, exception.New(exception.Names.NOTFOUND, "table not found")
+	ex := exception.New(exception.NOTFOUND, "table not found")
+
+	return nil, &ex
 }
 
-func (db *DB) FindByPk(tableName string, value string) (map[string]interface{}, error) {
+func (db *DB) FindByPk(tableName string, value string) (map[string]interface{}, *exception.Exception) {
 	if table, ok := db.tables[tableName]; ok {
 		return table.FindByPk(value), nil
 	}
 
-	return nil, exception.New(exception.Names.NOTFOUND, "table not found")
+	ex := exception.New(exception.NOTFOUND, "table not found")
+
+	return nil, &ex
 }
 
-func (db *DB) Create(tableName string, data map[string]interface{}) (map[string]interface{}, error) {
+func (db *DB) Create(tableName string, data map[string]interface{}) (map[string]interface{}, *exception.Exception) {
 	var table *Table
 	if checked, ok := db.tables[tableName]; ok {
 		table = checked
 	} else {
-		return nil, exception.New(exception.Names.NOTFOUND, "table not found")
+		ex := exception.New(exception.NOTFOUND, "table not found")
+		return nil, &ex
 	}
 
 	result := table.Create(data)

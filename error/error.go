@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-struct Exception {
+type Exception struct {
 	message string
 	name string
 	trace string
@@ -22,7 +22,7 @@ func New(name string, message string) Exception {
 	exception := Exception{
 		message: message,
 		name: name,
-		trace: trace
+		trace: trace,
 	}
 	return exception
 }
