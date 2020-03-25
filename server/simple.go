@@ -47,11 +47,11 @@ func (handler *Handler) getByPk(c *gin.Context) {
 func (handler *Handler) getAll(c *gin.Context) {
 	tableName := c.Param("name")
 
-	fmt.Printf("%v\n", c.Query)
+	// fmt.Printf("%v\n", c.Query)
 
 	data, err := handler.app.FindAll(tableName)
-
 	if err != nil {
+		fmt.Println("error!!!!")
 		fmt.Println(err)
 		c.JSON(404, map[string]interface{}{
 			"message": "oops..",

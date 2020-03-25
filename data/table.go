@@ -87,7 +87,6 @@ func (table *Table) transform(rows *sql.Rows) []map[string]interface{} {
 			row = append(row, &container)
 		}
 		rows.Scan(row...)
-
 		entry := table.transformRow(row)
 
 		data = append(data, entry)
@@ -102,12 +101,11 @@ func (table *Table) FindAll() []map[string]interface{} {
 	defer rows.Close()
 
 	if err != nil {
-		fmt.Println("[DB] error fetching ", table.name)
+		fmt.Println("[table] error fetching ", table.name)
 		fmt.Println(err)
 	}
 
 	data := table.transform(rows)
-
 	return data
 }
 
