@@ -1,10 +1,11 @@
 package server
 
 import (
-	"fmt"
+	// "fmt"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	laze "lazer/laze"
+	exception "lazer/error"
 )
 
 type Handler struct {
@@ -29,11 +30,7 @@ func (handler *Handler) getByPk(c *gin.Context) {
 	data, err := handler.app.FindByPk(tableName, pk)
 
 	if err != nil {
-		fmt.Println(err)
-		c.JSON(404, map[string]interface{}{
-			"message": "oops..",
-			"error": fmt.Sprintf("%s", err),
-		})
+		errorHandler(err, c)
 	} else {
 		resp := map[string]interface{}{
 			"message": "yo",
@@ -51,12 +48,7 @@ func (handler *Handler) getAll(c *gin.Context) {
 
 	data, err := handler.app.FindAll(tableName)
 	if err != nil {
-		fmt.Println("error!!!!")
-		fmt.Println(err)
-		c.JSON(404, map[string]interface{}{
-			"message": "oops..",
-			"error": fmt.Sprintf("%s", err),
-		})
+		errorHandler(err, c)
 	} else {
 		resp := map[string]interface{}{
 			"message": "yo",
@@ -83,10 +75,12 @@ func (handler *Handler) create(c *gin.Context) {
 	err = json.Unmarshal(raw, &mapped)
 
 	if err != nil {
-		c.JSON(500, map[string]interface{}{
-			"message": "error unmarshaling the body",
-			"error": err,
-		})
+		// c.JSON(500, map[string]interface{}{
+		// 	"message": "error unmarshaling the body",
+		// 	"error": err,
+		// })
+		ex := exception.FromError(err, exception.INTERNALERROR)
+		errorHandler(&ex, c)
 	}
 
 	_, err = handler.app.Create(tableName, mapped)

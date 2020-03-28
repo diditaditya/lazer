@@ -26,3 +26,22 @@ func New(name string, message string) Exception {
 	}
 	return exception
 }
+
+func FromError(cause error, name string) Exception {
+	err:= errors.WithStack(cause)
+	trace := fmt.Sprintf("%+v\n", err)
+	exception := Exception{
+		message: fmt.Sprintf("%s", cause),
+		name: name,
+		trace: trace,
+	}
+	return exception
+}
+
+func (ex *Exception) Message() string {
+	return ex.message
+}
+
+func (ex *Exception) Name() string {
+	return ex.name
+}

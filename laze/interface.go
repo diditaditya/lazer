@@ -12,6 +12,7 @@ type Repo interface {
 }
 
 type Exception interface {
+	Error() string
 	Message() string
-	Code() string
+	Name() string
 }
