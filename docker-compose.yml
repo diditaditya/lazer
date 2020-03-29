@@ -18,6 +18,6 @@ services:
     volumes:
       - ${PWD}/.persisted/mysql8:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: db
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
     command: --default-authentication-plugin=mysql_native_password

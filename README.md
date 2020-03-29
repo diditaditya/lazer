@@ -8,11 +8,25 @@ This is mere a fun project of utter laziness. Essentially the app directly *read
 
 Make sure [docker](https://docs.docker.com/install/) and [docker-compose](https://docs.docker.com/compose/install/) are installed.
 
-To start development, clone the repo and start the docker.
+To start development, clone and navigate to the cloned folder.
 
 ```bash
 $ git clone https://github.com/diditaditya/lazer
 $ cd lazer
+```
+
+Create `.env` file with the following variables
+```bash
+DB=mysql
+DB_HOST=mysql8
+DB_USER=root
+DB_PASSWORD=thedbpassword
+DB_NAME=thedbname
+```
+Note that the `DB_HOST` is the `mysql` container name in the `docker-compose.yml` in this case `mysql8`. The `DB_USER` is `root` because nothing is set for the container. If you want to change it please check [here](https://hub.docker.com/_/mysql) which also contains other settings for the `mysql` container.
+
+Start the docker
+```bash
 $ docker-compose up -d
 ```
 
@@ -23,18 +37,7 @@ $ docker exec -it go bash
 $ cd src/lazer
 $ go run main.go
 ```
-
-Which will `panic` because you need `.env` file in your root. The required variables are:
-
-```bash
-DB=mysql
-DB_HOST=thedbhost
-DB_USER=thedbuser
-DB_PASSWORD=thedbpassword
-DB_NAME=thedbname
-```
-
-Start the app again, and you can access the app from your browser or whatever at `localhost:3500`. If you want to change the port just change the `docker-compose.yml` which maps default `gin` port at 8080 to 3500. Or just experiment with [traefik](https://docs.traefik.io/) to access it from your localhost with subdomain, which is cool and helpful, so you don't need to care about clashing ports.
+You can access the app from your browser or whatever at `localhost:3500`. If you want to change the port just change the `docker-compose.yml` which maps default `gin` port at 8080 to 3500. Or just experiment with [traefik](https://docs.traefik.io/) to access it from your localhost with subdomain, which is cool and helpful, so you don't need to care about clashing ports.
 
 ## Features
 
