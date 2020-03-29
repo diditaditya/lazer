@@ -32,9 +32,9 @@ func (db *DB) GetTableNames() []string {
 	return tableNames
 }
 
-func (db *DB) FindAll(tableName string) ([]map[string]interface{}, *exception.Exception) {
+func (db *DB) FindAll(tableName string, params map[string][]string) ([]map[string]interface{}, *exception.Exception) {
 	if table, ok := db.tables[tableName]; ok {
-		return table.FindAll(), nil
+		return table.FindAll(params), nil
 	}
 
 	ex := exception.New(exception.NOTFOUND, "table not found")
