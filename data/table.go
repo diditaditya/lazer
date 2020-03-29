@@ -155,7 +155,7 @@ func (table *Table) createWhereStringFromFilter(filter map[string][]string) (str
 	return where, values
 }
 
-func (table *Table) FindAll(params map[string][]string) []map[string]interface{} {
+func (table *Table) FindAll(params map[string][]string) ([]map[string]interface{}, error) {
 
 	rawQuery := "SELECT * FROM "
 	rawQuery = rawQuery + table.name
@@ -172,10 +172,11 @@ func (table *Table) FindAll(params map[string][]string) []map[string]interface{}
 	if err != nil {
 		fmt.Println("[table] error fetching ", table.name)
 		fmt.Println(err)
+		return nil, err
 	}
 
 	data := table.transform(rows)
-	return data
+	return data, nil
 }
 
 func (table *Table) FindByPk(value string) map[string]interface{} {
