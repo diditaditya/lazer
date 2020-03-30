@@ -8,12 +8,14 @@ import (
 
 	"lazer/laze"
 	exception "lazer/error"
+
+	"lazer/data/table"
 )
 
 type DB struct {
 	Config *DBConfig
 	Connection *gorm.DB
-	tables map[string]*Table
+	tables map[string]*table.Table
 }
 
 func (db *DB) GetConnString() string {
@@ -59,7 +61,7 @@ func (db *DB) FindByPk(tableName string, value string) (map[string]interface{}, 
 }
 
 func (db *DB) Create(tableName string, data map[string]interface{}) (map[string]interface{}, laze.Exception) {
-	var table *Table
+	var table *table.Table
 	if checked, ok := db.tables[tableName]; ok {
 		table = checked
 	} else {
@@ -72,11 +74,11 @@ func (db *DB) Create(tableName string, data map[string]interface{}) (map[string]
 	return result, nil
 }
 
-func (db *DB) Tables() map[string]*Table {
+func (db *DB) Tables() map[string]*table.Table {
 	return db.tables
 }
 
-func (db *DB) GetTable(tableName string) *Table {
+func (db *DB) GetTable(tableName string) *table.Table {
 	return db.tables[tableName]
 }
 
@@ -90,22 +92,22 @@ func (db *DB) GetAllTables() {
 
 	fmt.Printf("[DB] found tables: %v\n", tableNames)
 
-	db.tables = make(map[string]*Table)
+	db.tables = make(map[string]*table.Table)
 	for i:= 0; i < len(tableNames); i++ {
 		rawColumns, columnNames := db.describeTable(tableNames[i])
-		table := Table{
-			name: tableNames[i],
-			conn: db.Connection,
+		tbl := table.Table{
+			Name: tableNames[i],
+			Conn: db.Connection,
 			ColumnNames: columnNames,
 			RawColumns: rawColumns,
 		}
-		table.getPkColumn()
-		db.tables[tableNames[i]] = &table
+		tbl.GetPkColumn()
+		db.tables[tableNames[i]] = &tbl
 	}
 	fmt.Printf("[DB] tables: %v\n", db.tables)
 }
 
-func (db *DB) describeTable(tableName string) (map[string]RawColumn, []string) {
+func (db *DB) describeTable(tableName string) (map[string]table.RawColumn, []string) {
 
 	query := fmt.Sprintf("DESCRIBE %s", tableName)
 
@@ -117,7 +119,7 @@ func (db *DB) describeTable(tableName string) (map[string]RawColumn, []string) {
 		fmt.Println("[DB] error describing table", tableName, err)
 	}
 
-	columns := make(map[string]RawColumn)
+	columns := make(map[string]table.RawColumn)
 	names := []string{}
 
 	if err != nil {
@@ -134,7 +136,7 @@ func (db *DB) describeTable(tableName string) (map[string]RawColumn, []string) {
 
 		rows.Scan(&Field, &Type, &Null, &Key, &Default, &Extra)
 
-		column := RawColumn{
+		column := table.RawColumn{
 			Field: Field,
 			Type: Type,
 			Null: Null,
