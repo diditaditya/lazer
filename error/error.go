@@ -12,10 +12,10 @@ type Exception struct {
 }
 
 func (ex *Exception) Error() string {
-	return ex.trace
+	return ex.message
 }
 
-func New(name string, message string) Exception {
+func New(name string, message string) *Exception {
 	cause := errors.New(message)
 	err := errors.WithStack(cause)
 	trace := fmt.Sprintf("%+v\n", err)
@@ -24,18 +24,18 @@ func New(name string, message string) Exception {
 		name: name,
 		trace: trace,
 	}
-	return exception
+	return &exception
 }
 
-func FromError(cause error, name string) Exception {
+func FromError(cause error, name string) *Exception {
 	err:= errors.WithStack(cause)
 	trace := fmt.Sprintf("%+v\n", err)
 	exception := Exception{
-		message: fmt.Sprintf("%s", cause),
+		message: cause.Error(),
 		name: name,
 		trace: trace,
 	}
-	return exception
+	return &exception
 }
 
 func (ex *Exception) Message() string {
@@ -44,4 +44,8 @@ func (ex *Exception) Message() string {
 
 func (ex *Exception) Name() string {
 	return ex.name
+}
+
+func (ex *Exception) Trace() string {
+	return ex.trace
 }

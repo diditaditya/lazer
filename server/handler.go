@@ -2,26 +2,29 @@ package server
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	exception "lazer/error"
+	"lazer/laze"
 )
 
-func errorHandler(err *exception.Exception, c *gin.Context) {
+func errorHandler(err laze.Exception, c *gin.Context) {
 	name := err.Name()
 	message := err.Message()
 
 	fmt.Println(err)
 
+	status := http.StatusInternalServerError
+
 	switch name {
 	case exception.NOTFOUND:
-		c.JSON(404, map[string]interface{}{
+		status = http.StatusNotFound
+	default:
+		status = http.StatusInternalServerError
+	}
+
+	c.JSON(status, map[string]interface{}{
 			"message": message,
 		})
-	default:
-		c.JSON(500, map[string]interface{}{
-			"message": "oops..",
-			"error": fmt.Sprintf("%s", err),
-		})
-	}
 }

@@ -30,7 +30,7 @@ func (app *App) GetAllTables() []string {
 	return result
 }
 
-func (app *App) Create(tableName string, data map[string]interface{}) (map[string]interface{}, *exception.Exception) {
+func (app *App) Create(tableName string, data map[string]interface{}) (map[string]interface{}, Exception) {
 	result, err := app.data.Create(tableName, data)
 	if err != nil {
 		return nil, err
