@@ -19,7 +19,7 @@ func getEnv() {
 func main() {
 	getEnv()
 
-	fmt.Println("laze to the max")
+	fmt.Println("[LAZER] laze to the max")
 	db := data.Connect()
 	defer db.Close()
 
