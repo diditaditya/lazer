@@ -37,3 +37,11 @@ func (app *App) Create(tableName string, data map[string]interface{}) (map[strin
 	}
 	return result, nil
 }
+
+func (app *App) Delete(tableName string, params map[string][]string) Exception {
+	err := app.data.Delete(tableName, params)
+	if err != nil {
+		return err
+	}
+	return nil
+}

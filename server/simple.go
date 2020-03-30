@@ -1,11 +1,9 @@
 package server
 
 import (
-	// "fmt"
-	"encoding/json"
 	"github.com/gin-gonic/gin"
+
 	laze "lazer/laze"
-	exception "lazer/error"
 )
 
 type Handler struct {
@@ -23,82 +21,6 @@ func (handler *Handler) root(c *gin.Context) {
 	c.JSON(200, resp)
 }
 
-func (handler *Handler) getByPk(c *gin.Context) {
-	tableName := c.Param("name")
-	pk := c.Param("pk")
-
-	data, err := handler.app.FindByPk(tableName, pk)
-
-	if err != nil {
-		errorHandler(err, c)
-	} else {
-		resp := map[string]interface{}{
-			"message": "yo",
-			"data": data,
-		}
-	
-		c.JSON(200, resp)
-	}
-}
-
-func (handler *Handler) getAll(c *gin.Context) {
-	tableName := c.Param("name")
-
-	query := c.Request.URL.Query()
-
-	data, err := handler.app.FindAll(tableName, query)
-	if err != nil {
-		errorHandler(err, c)
-	} else {
-		resp := map[string]interface{}{
-			"message": "yo",
-			"data": data,
-		}
-	
-		c.JSON(200, resp)
-	}
-}
-
-func (handler *Handler) create(c *gin.Context) {
-	tableName := c.Param("name")
-	rawBody, err := c.GetRawData()
-
-	if err != nil {
-		c.JSON(400, map[string]interface{}{
-			"message": "your fault..",
-			"error": err,
-		})
-		return
-	}
-
-	mapped := make(map[string]interface{})
-
-	err = json.Unmarshal(rawBody, &mapped)
-
-	if err != nil {
-		ex := exception.FromError(err, exception.INTERNALERROR)
-		errorHandler(ex, c)
-		return
-	}
-
-	_, err = handler.app.Create(tableName, mapped)
-
-	if err != nil {
-		ex, ok := err.(*exception.Exception)
-		if ok {
-			errorHandler(ex, c)
-		} else {
-		  ex = exception.FromError(err, exception.INTERNALERROR)
-			errorHandler(ex, c)
-		}
-		return
-	}
-
-	c.JSON(200, map[string]interface{}{
-		"message": "created..",
-	})
-}
-
 func Start(app *laze.App) {
 	router := gin.Default()
 
@@ -109,6 +31,8 @@ func Start(app *laze.App) {
 	router.GET("/:name/:pk", handler.getByPk)
 
 	router.POST("/:name", handler.create)
+
+	router.DELETE("/:name", handler.delete)
 
 	router.Run()
 }

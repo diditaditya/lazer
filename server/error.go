@@ -20,6 +20,8 @@ func errorHandler(err laze.Exception, c *gin.Context) {
 	switch name {
 	case exception.NOTFOUND:
 		status = http.StatusNotFound
+	case exception.BADREQUEST:
+		status = http.StatusBadRequest
 	default:
 		status = http.StatusInternalServerError
 	}

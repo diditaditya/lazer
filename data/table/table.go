@@ -6,6 +6,9 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+
+	"lazer/laze"
+	exception "lazer/error"
 )
 
 type Table struct {
@@ -85,10 +88,6 @@ func (table *Table) Create(data map[string]interface{}) map[string]interface{} {
 
 	for key, val := range data {
 		keys = append(keys, key)
-		// value, ok := val.(string)
-		// if ok {
-		// 	vals = append(vals, value)
-		// }
 		vals = append(vals, val)
 	}
 
@@ -115,4 +114,33 @@ func (table *Table) Create(data map[string]interface{}) map[string]interface{} {
 	entry := table.transformRow(row)
 
 	return entry
+}
+
+func (table *Table) Delete(params map[string][]string) laze.Exception {
+	// safe guard by requiring params
+	if len(params) == 0 {
+		ex := exception.New(exception.BADREQUEST, "parameters are required")
+		return ex
+	}
+
+	rawQuery := "DELETE FROM "
+	rawQuery = rawQuery + table.Name
+
+	filter := table.getFilter(params)
+	where, values := table.createWhereStringFromFilter(filter)
+
+	rawQuery = rawQuery + where
+
+	rows, err := table.Conn.Raw(rawQuery, values...).Rows()
+
+	defer rows.Close()
+
+	if err != nil {
+		fmt.Println("[table] error deleting from", table.Name)
+		fmt.Println(err)
+		ex := exception.FromError(err, exception.INTERNALERROR)
+		return ex
+	}
+
+	return nil
 }
