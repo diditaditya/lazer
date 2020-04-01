@@ -10,6 +10,7 @@ type Repo interface {
 	FindByPk(tableName string, pk string) (map[string]interface{}, *exception.Exception)
 	Create(tableName string, data map[string]interface{}) (map[string]interface{}, Exception)
 	Delete(tableName string, params map[string][]string) Exception
+	DeleteByPk(tableName string, pk string) Exception
 }
 
 type Exception interface {

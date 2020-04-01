@@ -62,3 +62,20 @@ func (db *DB) Delete(tableName string, params map[string][]string) laze.Exceptio
 	
 	return nil
 }
+
+func (db *DB) DeleteByPk(tableName string, value string) laze.Exception {
+	var table *table.Table
+	if checked, ok := db.tables[tableName]; ok {
+		table = checked
+	} else {
+		ex := exception.New(exception.NOTFOUND, "table not found")
+		return ex
+	}
+
+	err := table.DeleteByPk(value)
+	if err != nil {
+		return err
+	}
+	
+	return nil
+}

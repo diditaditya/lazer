@@ -20,8 +20,8 @@ func (app *App) FindAll(tableName string, query map[string][]string) ([]map[stri
 	return result, err
 }
 
-func (app *App) FindByPk(tableName string, value string) (map[string]interface{}, *exception.Exception) {
-	result, err := app.data.FindByPk(tableName, value)
+func (app *App) FindByPk(tableName string, pk string) (map[string]interface{}, *exception.Exception) {
+	result, err := app.data.FindByPk(tableName, pk)
 	return result, err
 }
 
@@ -40,6 +40,14 @@ func (app *App) Create(tableName string, data map[string]interface{}) (map[strin
 
 func (app *App) Delete(tableName string, params map[string][]string) Exception {
 	err := app.data.Delete(tableName, params)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (app *App) DeleteByPk(tableName string, pk string) Exception {
+	err := app.data.DeleteByPk(tableName, pk)
 	if err != nil {
 		return err
 	}
