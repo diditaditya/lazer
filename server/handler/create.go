@@ -1,4 +1,4 @@
-package server
+package handler
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	exception "lazer/error"
 )
 
-func (handler *Handler) create(c *gin.Context) {
+func (handler *Handler) Create(c *gin.Context) {
 	tableName := c.Param("name")
 	rawBody, err := c.GetRawData()
 
@@ -25,7 +25,7 @@ func (handler *Handler) create(c *gin.Context) {
 
 	if err != nil {
 		ex := exception.FromError(err, exception.INTERNALERROR)
-		errorHandler(ex, c)
+		handler.error(ex, c)
 		return
 	}
 
@@ -34,10 +34,10 @@ func (handler *Handler) create(c *gin.Context) {
 	if err != nil {
 		ex, ok := err.(*exception.Exception)
 		if ok {
-			errorHandler(ex, c)
+			handler.error(ex, c)
 		} else {
 		  ex = exception.FromError(err, exception.INTERNALERROR)
-			errorHandler(ex, c)
+			handler.error(ex, c)
 		}
 		return
 	}

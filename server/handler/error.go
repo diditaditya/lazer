@@ -1,4 +1,4 @@
-package server
+package handler
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"lazer/laze"
 )
 
-func errorHandler(err laze.Exception, c *gin.Context) {
+func (handler *Handler) error(err laze.Exception, c *gin.Context) {
 	name := err.Name()
 	message := err.Message()
 

@@ -4,35 +4,22 @@ import (
 	"github.com/gin-gonic/gin"
 
 	laze "lazer/laze"
+
+	"lazer/server/handler"
 )
-
-type Handler struct {
-	app *laze.App
-}
-
-func (handler *Handler) root(c *gin.Context) {
-	data := handler.app.GetAllTables()
-
-	resp := map[string]interface{}{
-		"message": "welcome",
-		"data": data,
-	}
-
-	c.JSON(200, resp)
-}
 
 func Start(app *laze.App) {
 	router := gin.Default()
 
-	handler := Handler{app: app}
+	handle := handler.New(app)
 
-	router.GET("/", handler.root)
-	router.GET("/:name", handler.getAll)
-	router.GET("/:name/:pk", handler.getByPk)
+	router.GET("/", handle.Root)
+	router.GET("/:name", handle.GetAll)
+	router.GET("/:name/:pk", handle.GetByPk)
 
-	router.POST("/:name", handler.create)
+	router.POST("/:name", handle.Create)
 
-	router.DELETE("/:name", handler.delete)
+	router.DELETE("/:name", handle.Delete)
 
 	router.Run()
 }
