@@ -30,7 +30,17 @@ Start the docker
 $ docker-compose up -d
 ```
 
-This will create 2 containers, the go and the mysql. The app will not automatically run. You must start it manually from inside the go container.
+This will create 2 containers, the go and the mysql. 
+
+In the mysql container, a database named the same as `DB_NAME` in `.env` file will be created. You can get inside the mysql container and create some tables. 
+
+```bash
+$ docker exec -it mysql8 bash
+$ mysql -p
+```
+Password will be asked, enter the one you set in `DB_PASSWORD`. And then you can start creating some tables.
+
+The app will not automatically run. You must start it manually from inside the go container.
 
 ```bash
 $ docker exec -it go bash
