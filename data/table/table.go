@@ -147,7 +147,28 @@ func (table *Table) Delete(params map[string][]string) laze.Exception {
 
 func (table *Table) DeleteByPk(value string) laze.Exception {
 	condition := fmt.Sprintf("%s = ?", table.Pk)
-	rows, err := table.Conn.Table(table.Name).Delete(condition, value).Rows()
+
+	found, err := table.Conn.Table(table.Name).Where(condition, value).Rows()
+
+	if err != nil {
+		fmt.Println("[DB] error finding entry from ", table.Name)
+		fmt.Println(err)
+		ex := exception.FromError(err, exception.INTERNALERROR)
+		return ex
+	}
+
+	if !found.Next() {
+		ex := exception.New(exception.UNPROCESSABLE, "record not found")
+		return ex
+	}
+
+	fmt.Printf("%v\n", *found)
+
+	rawQuery := "DELETE FROM "
+	rawQuery = rawQuery + table.Name
+	rawQuery = rawQuery + " WHERE " + condition
+
+	rows, err := table.Conn.Raw(rawQuery, value).Rows()
 
 	defer rows.Close()
 

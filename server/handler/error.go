@@ -22,6 +22,8 @@ func (handler *Handler) error(err laze.Exception, c *gin.Context) {
 		status = http.StatusNotFound
 	case exception.BADREQUEST:
 		status = http.StatusBadRequest
+	case exception.UNPROCESSABLE:
+		status = http.StatusUnprocessableEntity
 	default:
 		status = http.StatusInternalServerError
 	}

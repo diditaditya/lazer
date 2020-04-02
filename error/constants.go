@@ -4,4 +4,5 @@ const (
 	NOTFOUND = "NotFound"
 	INTERNALERROR = "InternalServerError"
 	BADREQUEST = "BadRequest"
+	UNPROCESSABLE = "UnprocessableEntity"
 )
