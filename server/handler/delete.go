@@ -8,7 +8,7 @@ func (handler *Handler) DeleteByPk(c *gin.Context) {
 	tableName := c.Param("name")
 	pk := c.Param("pk")
 
-	data, err := handler.app.DeleteByPk(tableName, pk)
+	err := handler.app.DeleteByPk(tableName, pk)
 
 	if err != nil {
 		handler.error(err, c)

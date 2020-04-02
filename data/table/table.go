@@ -147,7 +147,7 @@ func (table *Table) Delete(params map[string][]string) laze.Exception {
 
 func (table *Table) DeleteByPk(value string) laze.Exception {
 	condition := fmt.Sprintf("%s = ?", table.Pk)
-	rows, err := table.Conn.Table(table.Name).Where(condition, value).Delete().Rows()
+	rows, err := table.Conn.Table(table.Name).Delete(condition, value).Rows()
 
 	defer rows.Close()
 
