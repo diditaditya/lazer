@@ -11,6 +11,7 @@ type Repo interface {
 	Create(tableName string, data map[string]interface{}) (map[string]interface{}, Exception)
 	Delete(tableName string, params map[string][]string) Exception
 	DeleteByPk(tableName string, pk string) Exception
+	UpdateByPk(tableName string, pk string, data map[string]interface{}) Exception
 }
 
 type Exception interface {

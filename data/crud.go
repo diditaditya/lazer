@@ -79,3 +79,20 @@ func (db *DB) DeleteByPk(tableName string, value string) laze.Exception {
 	
 	return nil
 }
+
+func (db *DB) UpdateByPk(tableName string, pkValue string, data map[string]interface{}) laze.Exception {
+	var table *table.Table
+	if checked, ok := db.tables[tableName]; ok {
+		table = checked
+	} else {
+		ex := exception.New(exception.NOTFOUND, "table not found")
+		return ex
+	}
+
+	err := table.UpdateByPk(pkValue, data)
+	if err != nil {
+		return err
+	}
+	
+	return nil
+}

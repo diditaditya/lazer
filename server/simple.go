@@ -19,6 +19,8 @@ func Start(app *laze.App) {
 
 	router.POST("/:name", handle.Create)
 
+	router.PUT("/:name/:pk", handle.UpdateByPk)
+
 	router.DELETE("/:name", handle.Delete)
 	router.DELETE("/:name/:pk", handle.DeleteByPk)
 
