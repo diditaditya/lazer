@@ -7,23 +7,6 @@ import (
 	exception "lazer/error"
 )
 
-func (table *Table) recordExistsByPk(pkValue string) laze.Exception {
-	condition := fmt.Sprintf("%s = ?", table.Pk)
-
-	found, err := table.Conn.Table(table.Name).Where(condition, pkValue).Rows()
-
-	if err != nil {
-		ex := exception.FromError(err, exception.INTERNALERROR)
-		return ex
-	}
-
-	if !found.Next() {
-		ex := exception.New(exception.UNPROCESSABLE, "record not found")
-		return ex
-	}
-	return nil
-}
-
 func (table *Table) createUpdateQuery(data map[string]interface{}, params map[string][]string) (string, []interface{}) {
 	filter := table.getFilter(params)
 	whereStr, filterValues := table.createWhereStringFromFilter(filter)
