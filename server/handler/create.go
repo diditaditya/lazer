@@ -14,7 +14,7 @@ func (handler *Handler) Create(c *gin.Context) {
 	if err != nil {
 		c.JSON(400, map[string]interface{}{
 			"message": "your fault..",
-			"error": err,
+			"error":   err,
 		})
 		return
 	}
@@ -36,7 +36,7 @@ func (handler *Handler) Create(c *gin.Context) {
 		if ok {
 			handler.error(ex, c)
 		} else {
-		  ex = exception.FromError(err, exception.INTERNALERROR)
+			ex = exception.FromError(err, exception.INTERNALERROR)
 			handler.error(ex, c)
 		}
 		return

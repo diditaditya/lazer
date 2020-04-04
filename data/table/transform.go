@@ -19,7 +19,7 @@ func (table *Table) transformRow(row []interface{}) map[string]interface{} {
 	for key, raw := range mapped {
 		// get the raw type
 		casted := *(raw).(*interface{})
-		
+
 		// you can print out the type as follow
 		// rawType := fmt.Sprintf("%T", casted)
 		// fmt.Println(rawType)

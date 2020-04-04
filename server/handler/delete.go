@@ -16,7 +16,7 @@ func (handler *Handler) DeleteByPk(c *gin.Context) {
 		resp := map[string]interface{}{
 			"message": "deleted",
 		}
-	
+
 		c.JSON(200, resp)
 	}
 }

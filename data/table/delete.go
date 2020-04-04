@@ -3,8 +3,8 @@ package table
 import (
 	"fmt"
 
-	"lazer/laze"
 	exception "lazer/error"
+	"lazer/laze"
 )
 
 func (table *Table) Delete(params map[string][]string) laze.Exception {

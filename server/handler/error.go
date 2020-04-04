@@ -29,6 +29,6 @@ func (handler *Handler) error(err laze.Exception, c *gin.Context) {
 	}
 
 	c.JSON(status, map[string]interface{}{
-			"message": message,
-		})
+		"message": message,
+	})
 }

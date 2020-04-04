@@ -15,9 +15,9 @@ func (handler *Handler) GetByPk(c *gin.Context) {
 	} else {
 		resp := map[string]interface{}{
 			"message": "yo",
-			"data": data,
+			"data":    data,
 		}
-	
+
 		c.JSON(200, resp)
 	}
 }
@@ -33,9 +33,9 @@ func (handler *Handler) GetAll(c *gin.Context) {
 	} else {
 		resp := map[string]interface{}{
 			"message": "yo",
-			"data": data,
+			"data":    data,
 		}
-	
+
 		c.JSON(200, resp)
 	}
 }

@@ -3,8 +3,8 @@ package table
 import (
 	"fmt"
 
-	"lazer/laze"
 	exception "lazer/error"
+	"lazer/laze"
 )
 
 func (table *Table) createUpdateQuery(data map[string]interface{}, params map[string][]string) (string, []interface{}) {
@@ -20,12 +20,12 @@ func (table *Table) createUpdateQuery(data map[string]interface{}, params map[st
 				values = append(values, val)
 				columnValue := fmt.Sprintf("%s = ?", key)
 				columnsStr = columnsStr + columnValue
-				if counter < len(data) - 1 {
+				if counter < len(data)-1 {
 					columnsStr = columnsStr + ", "
 				}
 				counter = counter + 1
 			}
-		}		
+		}
 	}
 	values = append(values, filterValues...)
 
@@ -51,7 +51,9 @@ func (table *Table) Update(params map[string][]string, data map[string]interface
 func (table *Table) UpdateByPk(pk string, data map[string]interface{}) laze.Exception {
 
 	err := table.recordExistsByPk(pk)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	param := make(map[string][]string)
 	param[table.Pk] = []string{pk}

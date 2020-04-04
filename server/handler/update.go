@@ -15,7 +15,7 @@ func (handler *Handler) Update(c *gin.Context) {
 	if err != nil {
 		c.JSON(400, map[string]interface{}{
 			"message": "your fault..",
-			"error": err,
+			"error":   err,
 		})
 		return
 	}
@@ -38,7 +38,7 @@ func (handler *Handler) Update(c *gin.Context) {
 		resp := map[string]interface{}{
 			"message": "updated",
 		}
-	
+
 		c.JSON(200, resp)
 	}
 }
@@ -51,7 +51,7 @@ func (handler *Handler) UpdateByPk(c *gin.Context) {
 	if err != nil {
 		c.JSON(400, map[string]interface{}{
 			"message": "your fault..",
-			"error": err,
+			"error":   err,
 		})
 		return
 	}
@@ -74,7 +74,7 @@ func (handler *Handler) UpdateByPk(c *gin.Context) {
 		resp := map[string]interface{}{
 			"message": "updated",
 		}
-	
+
 		c.JSON(200, resp)
 	}
 }

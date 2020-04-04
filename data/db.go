@@ -2,17 +2,17 @@ package data
 
 import (
 	"fmt"
-	"os"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"os"
 
 	"lazer/data/table"
 )
 
 type DB struct {
-	Config *DBConfig
+	Config     *DBConfig
 	Connection *gorm.DB
-	tables map[string]*table.Table
+	tables     map[string]*table.Table
 }
 
 func (db *DB) GetConnString() string {
@@ -31,8 +31,6 @@ func (db *DB) GetTableNames() []string {
 	}
 	return tableNames
 }
-
-
 
 func (db *DB) Tables() map[string]*table.Table {
 	return db.tables
@@ -53,13 +51,13 @@ func (db *DB) GetAllTables() {
 	fmt.Printf("[DB] found tables: %v\n", tableNames)
 
 	db.tables = make(map[string]*table.Table)
-	for i:= 0; i < len(tableNames); i++ {
+	for i := 0; i < len(tableNames); i++ {
 		rawColumns, columnNames := db.describeTable(tableNames[i])
 		tbl := table.Table{
-			Name: tableNames[i],
-			Conn: db.Connection,
+			Name:        tableNames[i],
+			Conn:        db.Connection,
 			ColumnNames: columnNames,
-			RawColumns: rawColumns,
+			RawColumns:  rawColumns,
 		}
 		tbl.GetPkColumn()
 		db.tables[tableNames[i]] = &tbl
@@ -97,12 +95,12 @@ func (db *DB) describeTable(tableName string) (map[string]table.RawColumn, []str
 		rows.Scan(&Field, &Type, &Null, &Key, &Default, &Extra)
 
 		column := table.RawColumn{
-			Field: Field,
-			Type: Type,
-			Null: Null,
-			Key: Key,
+			Field:   Field,
+			Type:    Type,
+			Null:    Null,
+			Key:     Key,
 			Default: Default,
-			Extra: Extra,
+			Extra:   Extra,
 		}
 
 		columns[Field] = column
@@ -130,15 +128,15 @@ func newDB(config *DBConfig) *DB {
 
 func Connect() *DB {
 	config := DBConfig{
-		Host: os.Getenv("DB_HOST"),
-		User: os.Getenv("DB_USER"),
+		Host:     os.Getenv("DB_HOST"),
+		User:     os.Getenv("DB_USER"),
 		Password: os.Getenv("DB_PASSWORD"),
 		Database: os.Getenv("DB_NAME"),
 	}
 
 	db := newDB(&config)
-	connString := db.GetConnString()	
-	
+	connString := db.GetConnString()
+
 	connection, err := gorm.Open("mysql", connString)
 
 	if err != nil {

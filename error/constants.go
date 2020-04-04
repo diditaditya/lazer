@@ -1,8 +1,8 @@
 package error
 
 const (
-	NOTFOUND = "NotFound"
+	NOTFOUND      = "NotFound"
 	INTERNALERROR = "InternalServerError"
-	BADREQUEST = "BadRequest"
+	BADREQUEST    = "BadRequest"
 	UNPROCESSABLE = "UnprocessableEntity"
 )

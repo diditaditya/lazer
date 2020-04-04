@@ -41,7 +41,7 @@ func (table *Table) createWhereStringFromFilter(filter map[string][]string) (str
 			equator := " = "
 			dataType := table.RawColumns[key].Type
 			isString := isStringDataType(dataType)
-			if (isString) {
+			if isString {
 				equator = " LIKE "
 			}
 			where = where + equator
@@ -51,12 +51,12 @@ func (table *Table) createWhereStringFromFilter(filter map[string][]string) (str
 				where = " " + where + " OR "
 			}
 			value := val
-			if (isString) {
+			if isString {
 				value = fmt.Sprintf("%%%s%%", val)
 			}
 			values = append(values, value)
 		}
-		
+
 		if counter < (len(filter) - 1) {
 			where = where + " AND "
 			counter = counter + 1

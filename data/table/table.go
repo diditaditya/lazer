@@ -6,29 +6,29 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
-	"lazer/laze"
 	exception "lazer/error"
+	"lazer/laze"
 )
 
 type Table struct {
-	Name string
-	Conn *gorm.DB
+	Name        string
+	Conn        *gorm.DB
 	ColumnNames []string
-	RawColumns map[string]RawColumn
-	Pk string
+	RawColumns  map[string]RawColumn
+	Pk          string
 }
 
 type RawColumn struct {
-	Field string
-	Type string
-	Null string
-	Key string
+	Field   string
+	Type    string
+	Null    string
+	Key     string
 	Default string
-	Extra string
+	Extra   string
 }
 
 func (table *Table) GetPkColumn() {
-	for k,v := range table.RawColumns {
+	for k, v := range table.RawColumns {
 		if v.Key == "PRI" {
 			table.Pk = k
 			break

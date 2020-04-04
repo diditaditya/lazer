@@ -1,14 +1,14 @@
 package error
 
 import (
-	"github.com/pkg/errors"
 	"fmt"
+	"github.com/pkg/errors"
 )
 
 type Exception struct {
 	message string
-	name string
-	trace string
+	name    string
+	trace   string
 }
 
 func (ex *Exception) Error() string {
@@ -21,19 +21,19 @@ func New(name string, message string) *Exception {
 	trace := fmt.Sprintf("%+v\n", err)
 	exception := Exception{
 		message: message,
-		name: name,
-		trace: trace,
+		name:    name,
+		trace:   trace,
 	}
 	return &exception
 }
 
 func FromError(cause error, name string) *Exception {
-	err:= errors.WithStack(cause)
+	err := errors.WithStack(cause)
 	trace := fmt.Sprintf("%+v\n", err)
 	exception := Exception{
 		message: cause.Error(),
-		name: name,
-		trace: trace,
+		name:    name,
+		trace:   trace,
 	}
 	return &exception
 }

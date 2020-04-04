@@ -15,7 +15,7 @@ func (handler *Handler) Root(c *gin.Context) {
 
 	resp := map[string]interface{}{
 		"message": "welcome",
-		"data": data,
+		"data":    data,
 	}
 
 	c.JSON(200, resp)
