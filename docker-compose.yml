@@ -8,6 +8,7 @@ services:
     tty: true
     ports:
       - 3500:8080
+      - 3600:3600
     volumes:
       - ${PWD}:/go/src/lazer
     command: ['/bin/bash']

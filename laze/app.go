@@ -1,3 +1,4 @@
+// The main app
 package laze
 
 import (

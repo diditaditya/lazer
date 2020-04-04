@@ -1,3 +1,4 @@
+// Simple delivery mechanism of the lazer through http
 package server
 
 import (
@@ -8,6 +9,7 @@ import (
 	"lazer/server/handler"
 )
 
+// start the server
 func Start(app *laze.App) {
 	router := gin.Default()
 

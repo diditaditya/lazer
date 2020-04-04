@@ -5,14 +5,14 @@ import (
 )
 
 func (table *Table) FindAll(params map[string][]string) ([]map[string]interface{}, error) {
-
 	rawQuery := "SELECT * FROM "
 	rawQuery = rawQuery + table.Name
 
 	filter := table.getFilter(params)
 	where, values := table.createWhereStringFromFilter(filter)
+	pagination := table.createPaginationString(params)
 
-	rawQuery = rawQuery + where
+	rawQuery = rawQuery + where + pagination
 
 	rows, err := table.Conn.Raw(rawQuery, values...).Rows()
 
