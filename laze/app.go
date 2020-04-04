@@ -16,9 +16,9 @@ func Init(data Repo) *App {
 	return &app
 }
 
-func (app *App) FindAll(tableName string, query map[string][]string) ([]map[string]interface{}, *exception.Exception) {
-	result, err := app.data.FindAll(tableName, query)
-	return result, err
+func (app *App) FindAll(tableName string, query map[string][]string) ([]map[string]interface{}, map[string]interface{}, *exception.Exception) {
+	result, meta, err := app.data.FindAll(tableName, query)
+	return result, meta, err
 }
 
 func (app *App) FindByPk(tableName string, pk string) (map[string]interface{}, *exception.Exception) {

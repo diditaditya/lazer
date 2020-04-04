@@ -2,30 +2,61 @@ package table
 
 import (
 	"fmt"
+	"math"
+
+	"lazer/laze"
+	exception "lazer/error"
 )
 
-func (table *Table) FindAll(params map[string][]string) ([]map[string]interface{}, error) {
+func (table *Table) count(where string, values []interface{}) (int, laze.Exception) {
+	query := fmt.Sprintf("SELECT COUNT(%s) FROM %s %s", table.Pk, table.Name, where)
+	counter, err := table.Conn.Raw(query, values...).Rows()
+	if err != nil {
+		ex := exception.FromError(err, exception.INTERNALERROR)
+		return 0, ex
+	}
+	count := 0
+	if counter.Next() {
+		counter.Scan(&count)
+	}
+	return count, nil
+}
+
+func (table *Table) FindAll(params map[string][]string) ([]map[string]interface{}, map[string]interface{}, laze.Exception) {
 	rawQuery := "SELECT * FROM "
 	rawQuery = rawQuery + table.Name
 
 	filter := table.getFilter(params)
 	where, values := table.createWhereStringFromFilter(filter)
-	pagination := table.createPaginationString(params)
+
+	total, countErr := table.count(where, values)
+	if countErr != nil {
+		return nil, nil, countErr
+	}
+	pagination, page, limit, _ := table.getPagination(params)
 
 	rawQuery = rawQuery + where + pagination
+
+	pages := math.Ceil(float64(total) / float64(limit))
 
 	rows, err := table.Conn.Raw(rawQuery, values...).Rows()
 
 	defer rows.Close()
 
 	if err != nil {
-		fmt.Println("[table] error fetching ", table.Name)
-		fmt.Println(err)
-		return nil, err
+		ex := exception.FromError(err, exception.INTERNALERROR)
+		return nil, nil, ex
+	}
+
+	meta := map[string]interface{}{
+		"page": page,
+		"pageSize": limit,
+		"pages": pages,
+		"total": total,
 	}
 
 	data := table.transform(rows)
-	return data, nil
+	return data, meta, nil
 }
 
 func (table *Table) FindByPk(value string) map[string]interface{} {

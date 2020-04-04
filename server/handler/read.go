@@ -27,13 +27,14 @@ func (handler *Handler) GetAll(c *gin.Context) {
 
 	query := c.Request.URL.Query()
 
-	data, err := handler.app.FindAll(tableName, query)
+	data, meta, err := handler.app.FindAll(tableName, query)
 	if err != nil {
 		handler.error(err, c)
 	} else {
 		resp := map[string]interface{}{
 			"message": "yo",
 			"data":    data,
+			"meta":    meta,
 		}
 
 		c.JSON(200, resp)

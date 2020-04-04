@@ -7,19 +7,19 @@ import (
 	"lazer/data/table"
 )
 
-func (db *DB) FindAll(tableName string, params map[string][]string) ([]map[string]interface{}, *exception.Exception) {
+func (db *DB) FindAll(tableName string, params map[string][]string) ([]map[string]interface{}, map[string]interface{}, *exception.Exception) {
 	if table, ok := db.tables[tableName]; ok {
-		result, err := table.FindAll(params)
+		result, meta, err := table.FindAll(params)
 		if err != nil {
 			ex := exception.FromError(err, exception.INTERNALERROR)
-			return nil, ex
+			return nil, nil, ex
 		}
-		return result, nil
+		return result, meta, nil
 	}
 
 	ex := exception.New(exception.NOTFOUND, "table not found")
 
-	return nil, ex
+	return nil, nil, ex
 }
 
 func (db *DB) FindByPk(tableName string, value string) (map[string]interface{}, *exception.Exception) {

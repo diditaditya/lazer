@@ -8,36 +8,43 @@ import (
 	exception "lazer/error"
 )
 
-func getPaginationParams(params map[string][]string) (int, int, laze.Exception) {
+func getPaginationParams(params map[string][]string) (int, int, int, laze.Exception) {
 	limit := 10
 	offset := 0
+	page := 1
 	if rawPageSize, ok := params["pageSize"]; ok {
 		pageSize, err := strconv.Atoi(rawPageSize[0])
 		if err != nil {
 			ex := exception.FromError(err, exception.INTERNALERROR)
-			return limit, offset, ex
+			return page, limit, offset, ex
 		}
 		limit = pageSize
 	}
 	if rawPage, ok := params["page"]; ok {
-		page, err := strconv.Atoi(rawPage[0])
+		pageInt, err := strconv.Atoi(rawPage[0])
 		if err != nil {
 			ex := exception.FromError(err, exception.INTERNALERROR)
-			return limit, offset, ex
+			return page, limit, offset, ex
 		}
-		if page < 1 {
-			page = 1
+		if pageInt < 1 {
+			pageInt = 1
 		}
+		page = pageInt
 		offset = (page - 1) * limit
 	}
-	return limit, offset, nil
+	return page, limit, offset, nil
 }
 
-func (table *Table) createPaginationString(params map[string][]string) string {
-	limit, offset, err := getPaginationParams(params)
+func createPaginationString(limit int, offset int) string {
+	paginationStr := fmt.Sprintf(" LIMIT %v OFFSET %v", limit, offset)
+	return paginationStr
+}
+
+func (table *Table) getPagination(params map[string][]string) (string, int, int, int) {
+	page, limit, offset, err := getPaginationParams(params)
 	if err != nil {
 		fmt.Println(err)
 	}
-	paginationStr := fmt.Sprintf(" LIMIT %v OFFSET %v", limit, offset)
-	return paginationStr
+	paginationStr := createPaginationString(limit, offset)
+	return paginationStr, page, limit, offset
 }
