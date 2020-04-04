@@ -54,6 +54,14 @@ func (app *App) DeleteByPk(tableName string, pk string) Exception {
 	return nil
 }
 
+func (app *App) Update(tableName string, params map[string][]string, data map[string]interface{}) Exception {
+	err := app.data.Update(tableName, params, data)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (app *App) UpdateByPk(tableName string, pk string, data map[string]interface{}) Exception {
 	err := app.data.UpdateByPk(tableName, pk, data)
 	if err != nil {

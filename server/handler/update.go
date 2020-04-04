@@ -7,6 +7,42 @@ import (
 	exception "lazer/error"
 )
 
+func (handler *Handler) Update(c *gin.Context) {
+	tableName := c.Param("name")
+	rawBody, err := c.GetRawData()
+	query := c.Request.URL.Query()
+
+	if err != nil {
+		c.JSON(400, map[string]interface{}{
+			"message": "your fault..",
+			"error": err,
+		})
+		return
+	}
+
+	mapped := make(map[string]interface{})
+
+	err = json.Unmarshal(rawBody, &mapped)
+
+	if err != nil {
+		ex := exception.FromError(err, exception.INTERNALERROR)
+		handler.error(ex, c)
+		return
+	}
+
+	updateErr := handler.app.Update(tableName, query, mapped)
+
+	if updateErr != nil {
+		handler.error(updateErr, c)
+	} else {
+		resp := map[string]interface{}{
+			"message": "updated",
+		}
+	
+		c.JSON(200, resp)
+	}
+}
+
 func (handler *Handler) UpdateByPk(c *gin.Context) {
 	tableName := c.Param("name")
 	pk := c.Param("pk")

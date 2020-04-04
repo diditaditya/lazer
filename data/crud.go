@@ -96,3 +96,22 @@ func (db *DB) UpdateByPk(tableName string, pkValue string, data map[string]inter
 	
 	return nil
 }
+
+func (db *DB) Update(tableName string, params map[string][]string, data map[string]interface{}) laze.Exception {
+	err := db.tableExists(tableName)
+	if err != nil { return err }
+	
+	table := db.tables[tableName]
+	err = table.Update(params, data)
+	if err != nil { return err }
+
+	return nil
+}
+
+func (db *DB) tableExists(tableName string) laze.Exception {
+	if _, ok := db.tables[tableName]; !ok {
+		ex := exception.New(exception.NOTFOUND, "table not found")
+		return ex
+	}
+	return nil
+}

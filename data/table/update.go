@@ -51,6 +51,19 @@ func (table *Table) createUpdateQuery(data map[string]interface{}, params map[st
 	return query, values
 }
 
+func (table *Table) Update(params map[string][]string, data map[string]interface{}) laze.Exception {
+	query, values := table.createUpdateQuery(data, params)
+
+	rows, err := table.Conn.Raw(query, values...).Rows()
+	defer rows.Close()
+
+	if err != nil {
+		ex := exception.FromError(err, exception.INTERNALERROR)
+		return ex
+	}
+
+	return nil
+}
 
 func (table *Table) UpdateByPk(pk string, data map[string]interface{}) laze.Exception {
 
