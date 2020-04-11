@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"strings"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"os"
@@ -9,9 +10,26 @@ import (
 	"lazer/data/table"
 )
 
+type Query struct {}
+
+func (q *Query) describeTable(tableName string) string {
+	fields := []string{
+		"COLUMN_NAME AS Field",
+		"DATA_TYPE AS Type",
+		"IS_NULLABLE AS 'Null'",
+		"COLUMN_KEY AS 'Key'",
+		"COLUMN_DEFAULT AS 'Default'",
+		"EXTRA AS Extra",
+	}
+	base := "SELECT %s FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '%s'"
+	query := fmt.Sprintf(base, strings.Join(fields[:], ", "), tableName)
+	return query
+}
+
 type DB struct {
 	Config     *DBConfig
 	Connection *gorm.DB
+	query			 *Query
 	tables     map[string]*table.Table
 }
 
@@ -66,8 +84,7 @@ func (db *DB) GetAllTables() {
 }
 
 func (db *DB) describeTable(tableName string) (map[string]table.RawColumn, []string) {
-
-	query := fmt.Sprintf("DESCRIBE %s", tableName)
+	query := db.query.describeTable(tableName)
 
 	fmt.Printf("[DB] %s\n", query)
 
@@ -119,8 +136,10 @@ func newDB(config *DBConfig) *DB {
 	if config.Port == 0 {
 		config.Port = 3306
 	}
+	query := Query{}
 	db := DB{
 		Config: config,
+		query: &query,
 	}
 
 	return &db
