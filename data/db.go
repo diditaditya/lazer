@@ -16,6 +16,7 @@ type DB struct {
 	Connection *gorm.DB
 	query			 trait.SQLQuery
 	tables     map[string]*table.Table
+	associations map[string]map[string]*Association
 }
 
 func (db *DB) GetConnString() string {
@@ -66,6 +67,8 @@ func (db *DB) GetAllTables() {
 		}
 		tbl.GetPkColumn()
 		db.tables[tableNames[i]] = &tbl
+
+		db.getAssociations(tableNames[i])
 	}
 }
 
@@ -124,6 +127,7 @@ func newDB(config *DBConfig) *DB {
 	db := DB{
 		Config: config,
 		query: q,
+		associations: make(map[string]map[string]*Association),
 	}
 
 	return &db
@@ -150,6 +154,7 @@ func Connect() *DB {
 	db.Connection = connection
 
 	db.GetAllTables()
+	db.completeAssociations()
 	db.Connection.LogMode(true)
 
 	return db

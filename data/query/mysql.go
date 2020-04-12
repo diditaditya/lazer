@@ -26,3 +26,17 @@ func (q *MySQL) DescribeTable(tableName string) string {
 func (q *MySQL) GetTables() string {
 	return "SHOW TABLES"
 }
+
+func (q *MySQL) GetAssociations(tableName string) string {
+	fields := []string{
+		"COLUMN_NAME AS Field",
+		"REFERENCED_TABLE_NAME AS ReferencedTable",
+		"REFERENCED_COLUMN_NAME AS ReferencedField",
+	}
+	base := "SELECT %s FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE"
+	baseSubbed := fmt.Sprintf(base, strings.Join(fields[:], ", "))
+	where := "WHERE TABLE_NAME = '%s' AND REFERENCED_TABLE_NAME IS NOT NULL"
+	whereSubbed := fmt.Sprintf(where, tableName)
+	query := baseSubbed + " " + whereSubbed
+	return query
+}

@@ -13,6 +13,7 @@ type Repo interface {
 	DeleteByPk(tableName string, pk string) Exception
 	Update(tableName string, params map[string][]string, data map[string]interface{}) Exception
 	UpdateByPk(tableName string, pk string, data map[string]interface{}) Exception
+	GetTableAssociations(tableName string) []map[string]interface{}
 }
 
 type Exception interface {

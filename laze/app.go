@@ -70,3 +70,7 @@ func (app *App) UpdateByPk(tableName string, pk string, data map[string]interfac
 	}
 	return nil
 }
+
+func (app *App) GetAssociations(tableName string) []map[string]interface{} {
+	return app.data.GetTableAssociations(tableName)
+}

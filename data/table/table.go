@@ -11,11 +11,12 @@ import (
 )
 
 type Table struct {
-	Name        string
-	Conn        *gorm.DB
-	ColumnNames []string
-	RawColumns  map[string]RawColumn
-	Pk          string
+	Name        	string
+	Conn        	*gorm.DB
+	ColumnNames 	[]string
+	RawColumns  	map[string]RawColumn
+	Pk          	string
+	Associations	map[string]map[string]string
 }
 
 type RawColumn struct {
