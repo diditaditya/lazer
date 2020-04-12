@@ -17,7 +17,9 @@ func (q *MySQL) DescribeTable(tableName string) string {
 		"EXTRA AS Extra",
 	}
 	base := "SELECT %s FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '%s'"
-	query := fmt.Sprintf(base, strings.Join(fields[:], ", "), tableName)
+	order := "ORDER BY ORDINAL_POSITION"
+	baseSubbed := fmt.Sprintf(base, strings.Join(fields[:], ", "), tableName)
+	query := baseSubbed + " " + order
 	return query
 }
 
