@@ -2,34 +2,19 @@ package data
 
 import (
 	"fmt"
-	"strings"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"os"
 
 	"lazer/data/table"
+	"lazer/data/query"
+	"lazer/data/trait"
 )
-
-type Query struct {}
-
-func (q *Query) describeTable(tableName string) string {
-	fields := []string{
-		"COLUMN_NAME AS Field",
-		"DATA_TYPE AS Type",
-		"IS_NULLABLE AS 'Null'",
-		"COLUMN_KEY AS 'Key'",
-		"COLUMN_DEFAULT AS 'Default'",
-		"EXTRA AS Extra",
-	}
-	base := "SELECT %s FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '%s'"
-	query := fmt.Sprintf(base, strings.Join(fields[:], ", "), tableName)
-	return query
-}
 
 type DB struct {
 	Config     *DBConfig
 	Connection *gorm.DB
-	query			 *Query
+	query			 trait.SQLQuery
 	tables     map[string]*table.Table
 }
 
@@ -59,8 +44,10 @@ func (db *DB) GetTable(tableName string) *table.Table {
 }
 
 func (db *DB) GetAllTables() {
+	query := db.query.GetTables()
+
 	var tableNames []string
-	err := db.Connection.Raw("SHOW TABLES").Pluck("Tables_in_db", &tableNames).Error
+	err := db.Connection.Raw(query).Pluck("Tables_in_db", &tableNames).Error
 
 	if err != nil {
 		fmt.Println("[DB] error getting tables in db")
@@ -80,13 +67,10 @@ func (db *DB) GetAllTables() {
 		tbl.GetPkColumn()
 		db.tables[tableNames[i]] = &tbl
 	}
-	fmt.Printf("[DB] tables: %v\n", db.tables)
 }
 
 func (db *DB) describeTable(tableName string) (map[string]table.RawColumn, []string) {
-	query := db.query.describeTable(tableName)
-
-	fmt.Printf("[DB] %s\n", query)
+	query := db.query.DescribeTable(tableName)
 
 	rows, err := db.Connection.Raw(query).Rows()
 
@@ -136,10 +120,10 @@ func newDB(config *DBConfig) *DB {
 	if config.Port == 0 {
 		config.Port = 3306
 	}
-	query := Query{}
+	q := query.Get(os.Getenv("DB"))
 	db := DB{
 		Config: config,
-		query: &query,
+		query: q,
 	}
 
 	return &db
