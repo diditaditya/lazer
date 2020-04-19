@@ -1,6 +1,9 @@
 package data
 
 import (
+	"fmt"
+	"strings"
+
 	exception "lazer/error"
 	"lazer/laze"
 
@@ -8,6 +11,17 @@ import (
 )
 
 func (db *DB) FindAll(tableName string, params map[string][]string) ([]map[string]interface{}, map[string]interface{}, *exception.Exception) {
+	include := map[string]interface{}{}
+	if inc, ok := params["include"]; ok {
+		result := map[string]interface{}{
+			"tableName": tableName,
+			"fields": []string{},
+			"joined": []map[string]interface{}{},
+		}
+		incStr := strings.Join(inc, ",")
+		include = db.parseInclude(tableName, incStr, result)
+	}
+	fmt.Printf("include: %v\n", include)
 	if table, ok := db.tables[tableName]; ok {
 		result, meta, err := table.FindAll(params)
 		if err != nil {
