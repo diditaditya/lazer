@@ -22,12 +22,20 @@ func (table *Table) count(where string, values []interface{}) (int, laze.Excepti
 	return count, nil
 }
 
-func (table *Table) FindAll(params map[string][]string) ([]map[string]interface{}, map[string]interface{}, laze.Exception) {
+func (table *Table) FindAll(params map[string][]string, include map[string]interface{}) ([]map[string]interface{}, map[string]interface{}, laze.Exception) {
 	rawQuery := "SELECT * FROM "
 	rawQuery = rawQuery + table.Name
 
 	filter := table.getFilter(params)
 	where, values := table.createWhereStringFromFilter(filter)
+
+	fieldMarks, fields := table.getFields(include)
+	fmt.Printf("field marks: %v\n", fieldMarks)
+	fmt.Printf("fields: %v\n", fields)
+
+	joinMarks, joined := table.getJoined(include)
+	fmt.Printf("join marks: %v\n", joinMarks)
+	fmt.Printf("joined: %v\n", joined)
 
 	total, countErr := table.count(where, values)
 	if countErr != nil {

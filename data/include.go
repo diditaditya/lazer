@@ -18,6 +18,16 @@ func (db *DB) isAssociation(sourceTable string, targetTable string) bool {
 	return false
 }
 
+func (db *DB) getAllFields(tableName string) []string {
+	fields := []string{}
+	if table, tableFound := db.tables[tableName]; tableFound {
+		for field, _ := range table.RawColumns {
+			fields = append(fields, field)
+		}
+	}
+	return fields
+}
+
 func (db *DB) parseInclude(tableName string, include string, result map[string]interface{}) map[string]interface{} {
 	isInBracket := false
 	openBracketCounter := 0
@@ -55,6 +65,9 @@ func (db *DB) parseInclude(tableName string, include string, result map[string]i
 				joinedRes := map[string]interface{}{
 					"tableName": field,
 					"fields": []string{},
+					"foreignKey": db.associations[field][tableName].Field,
+					"referencedField": db.associations[field][tableName].ReferencedField,
+					"type": db.associations[field][tableName].Type,
 					"joined": []map[string]interface{}{},
 				}
 				joined = append(joined, joinedRes)
@@ -74,6 +87,9 @@ func (db *DB) parseInclude(tableName string, include string, result map[string]i
 				joinedRes := map[string]interface{}{
 					"tableName": joinedTable,
 					"fields": []string{},
+					"foreignKey": db.associations[joinedTable][tableName].Field,
+					"referencedField": db.associations[joinedTable][tableName].ReferencedField,
+					"type": db.associations[joinedTable][tableName].Type,
 					"joined": []map[string]interface{}{},
 				}
 				res := db.parseInclude(joinedTable, joinedFieldsStr, joinedRes)
@@ -107,12 +123,19 @@ func (db *DB) parseInclude(tableName string, include string, result map[string]i
 			}
 			joinedRes := map[string]interface{}{
 				"tableName": field,
-				"fields": []string{},
+				"fields": db.getAllFields(field),
+				"foreignKey": db.associations[field][tableName].Field,
+				"referencedField": db.associations[field][tableName].ReferencedField,
+				"type": db.associations[field][tableName].Type,
 				"joined": []map[string]interface{}{},
 			}
 			joined = append(joined, joinedRes)
 			result["joined"] = joined
 		}
+	}
+
+	if len(fields) == 0 {
+		fields = db.getAllFields(tableName)
 	}
 
 	result["fields"] = fields
