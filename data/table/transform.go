@@ -5,12 +5,13 @@ import (
 	"database/sql"
 )
 
-func (table *Table) transformRow(row []interface{}) map[string]interface{} {
+func (table *Table) transformRow(row []interface{}, fields []string) map[string]interface{} {
 	// the stored row has must be mapped to the column names
 	// this is rather unassuring, will the indices always be correct?
+	if len(fields) == 0 { fields = table.ColumnNames }
 	mapped := make(map[string]interface{})
-	for i := 0; i < len(table.ColumnNames); i++ {
-		name := table.ColumnNames[i]
+	for i := 0; i < len(fields); i++ {
+		name := fields[i]
 		mapped[name] = row[i]
 	}
 
@@ -43,20 +44,21 @@ func (table *Table) transformRow(row []interface{}) map[string]interface{} {
 	return entry
 }
 
-func (table *Table) transform(rows *sql.Rows) []map[string]interface{} {
+func (table *Table) transform(rows *sql.Rows, fields []string) []map[string]interface{} {
 	// create slice of map to hold the data
 	data := []map[string]interface{}{}
+	if len(fields) == 0 { fields = table.ColumnNames }
 
 	for rows.Next() {
 		// create slice of interfaces to temporarily store the row
-		row := make([]interface{}, 0, len(table.RawColumns))
-		for i := 0; i < len(table.RawColumns); i++ {
+		row := make([]interface{}, 0, len(fields))
+		for i := 0; i < len(fields); i++ {
 			var container interface{}
 			container = struct{}{}
 			row = append(row, &container)
 		}
 		rows.Scan(row...)
-		entry := table.transformRow(row)
+		entry := table.transformRow(row, fields)
 
 		data = append(data, entry)
 	}

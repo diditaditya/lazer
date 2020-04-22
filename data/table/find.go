@@ -23,27 +23,41 @@ func (table *Table) count(where string, values []interface{}) (int, laze.Excepti
 }
 
 func (table *Table) FindAll(params map[string][]string, include map[string]interface{}) ([]map[string]interface{}, map[string]interface{}, laze.Exception) {
-	rawQuery := "SELECT * FROM "
-	rawQuery = rawQuery + table.Name
-
-	filter := table.getFilter(params)
-	where, values := table.createWhereStringFromFilter(filter)
+	values := []interface{}{}
 
 	fieldMarks, fields := table.getFields(include)
-	fmt.Printf("field marks: %v\n", fieldMarks)
-	fmt.Printf("fields: %v\n", fields)
+	
+	if len(fields) == 0 {
+		fmt.Println("fields length = 0")
+		for i, field := range table.ColumnNames {
+			fields = append(fields, field)
+			fieldMarks = fieldMarks + field
+			if i < len(table.ColumnNames) - 1 {
+				fieldMarks = fieldMarks + ", "
+			}
+		}
+	}
+
+	rawQuery := "SELECT " + fieldMarks + " FROM "
+	rawQuery = rawQuery + table.Name
 
 	joinMarks, joined := table.getJoined(include)
-	fmt.Printf("join marks: %v\n", joinMarks)
-	fmt.Printf("joined: %v\n", joined)
 
-	total, countErr := table.count(where, values)
+	if len(joined) > 0 {
+		rawQuery = rawQuery + " " + joinMarks
+	}
+
+	filter := table.getFilter(params)
+	whereMarks, wheres := table.createWhereStringFromFilter(filter)
+	values = append(values, wheres...)
+
+	total, countErr := table.count(whereMarks, wheres)
 	if countErr != nil {
 		return nil, nil, countErr
 	}
 	pagination, page, limit, _ := table.getPagination(params)
 
-	rawQuery = rawQuery + where + pagination
+	rawQuery = rawQuery + whereMarks + pagination
 
 	pages := math.Ceil(float64(total) / float64(limit))
 
@@ -63,7 +77,7 @@ func (table *Table) FindAll(params map[string][]string, include map[string]inter
 		"total": total,
 	}
 
-	data := table.transform(rows)
+	data := table.transform(rows, fields)
 	return data, meta, nil
 }
 
@@ -78,7 +92,7 @@ func (table *Table) FindByPk(value string) map[string]interface{} {
 		fmt.Println(err)
 	}
 
-	data := table.transform(rows)
+	data := table.transform(rows, table.ColumnNames)
 
 	if len(data) > 0 {
 		return data[0]

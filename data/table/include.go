@@ -26,8 +26,8 @@ func (table *Table) parseFields(raw map[string]interface{}, fields []string) []s
 func (table *Table) getFields(raw map[string]interface{}) (fieldMarks string, fields []string) {
 	fields = table.parseFields(raw, []string{})
 
-	for i, _ := range fields {
-		fieldMarks = fieldMarks + "?"
+	for i, field := range fields {
+		fieldMarks = fieldMarks + field
 		if i < len(fields) - 1 {
 			fieldMarks = fieldMarks + ", "
 		}
@@ -79,25 +79,25 @@ func (table *Table) getJoined(raw map[string]interface{}) (marks string, values 
 	for i, join := range joins {
 		if i > 0 { marks = marks + " " }
 
-		marks = marks + "JOIN "
+		marks = marks + "LEFT JOIN "
 
-		marks = marks + "? "
+		marks = marks + join["tableName"] + " "
 		values = append(values, join["tableName"])
 
 		marks = marks + "ON "
 		
-		marks = marks + "?"
+		marks = marks + join["tableName"]
 		values = append(values, join["tableName"])
 
-		marks = marks + ".?"
+		marks = marks + "." + join["field"]
 		values = append(values, join["field"])
 
 		marks = marks + " = "
 
-		marks = marks + "?"
+		marks = marks + join["referencedTable"]
 		values = append(values, join["referencedTable"])
 
-		marks = marks + ".?"
+		marks = marks + "." + join["referencedField"]
 		values = append(values, join["referencedField"])
 	}
 
