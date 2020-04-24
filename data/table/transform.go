@@ -3,7 +3,18 @@ package table
 import (
 	"bytes"
 	"database/sql"
+	"strings"
 )
+
+func unpack(raw string) (tableName string, field string) {
+	sep := strings.Split(raw[:], ".")
+	field = sep[0]
+	if len(sep) > 1 {
+		tableName = sep[0]
+		field = sep[1]
+	}
+	return tableName, field
+}
 
 func (table *Table) transformRow(row []interface{}, fields []string) map[string]interface{} {
 	// the stored row has must be mapped to the column names
@@ -12,6 +23,8 @@ func (table *Table) transformRow(row []interface{}, fields []string) map[string]
 	mapped := make(map[string]interface{})
 	for i := 0; i < len(fields); i++ {
 		name := fields[i]
+		tableName, field := unpack(fields[i])
+		if tableName == table.Name { name = field }
 		mapped[name] = row[i]
 	}
 
