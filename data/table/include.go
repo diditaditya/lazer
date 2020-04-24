@@ -1,5 +1,9 @@
 package table
 
+import (
+	"fmt"
+)
+
 func (table *Table) parseFields(raw map[string]interface{}, fields []string) []string {
 	tableName := ""
 	incTable, isTableOk := raw["tableName"].(string)
@@ -25,6 +29,12 @@ func (table *Table) parseFields(raw map[string]interface{}, fields []string) []s
 
 func (table *Table) getFields(raw map[string]interface{}) (fieldMarks string, fields []string) {
 	fields = table.parseFields(raw, []string{})
+
+	if len(fields) == 0 {
+		for _, col := range table.ColumnNames {
+			fields = append(fields, fmt.Sprintf("%s.%s", table.Name, col))
+		}
+	}
 
 	for i, field := range fields {
 		fieldMarks = fieldMarks + field

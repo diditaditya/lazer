@@ -3,13 +3,14 @@ package table
 import (
 	"fmt"
 	"math"
+	"strings"
 
-	"lazer/laze"
 	exception "lazer/error"
+	"lazer/laze"
 )
 
 func (table *Table) count(where string, values []interface{}) (int, laze.Exception) {
-	query := fmt.Sprintf("SELECT COUNT(%s) FROM %s %s", table.Pk, table.Name, where)
+	query := fmt.Sprintf("SELECT COUNT(DISTINCT(%s)) FROM %s %s", table.Pk, table.Name, where)
 	counter, err := table.Conn.Raw(query, values...).Rows()
 	if err != nil {
 		ex := exception.FromError(err, exception.INTERNALERROR)
@@ -22,21 +23,44 @@ func (table *Table) count(where string, values []interface{}) (int, laze.Excepti
 	return count, nil
 }
 
-func (table *Table) FindAll(params map[string][]string, include map[string]interface{}) ([]map[string]interface{}, map[string]interface{}, laze.Exception) {
-	values := []interface{}{}
+func (table *Table) getOrderBy(params map[string][]string) (orderBy string) {
+	mapper := map[string]string{
+		"a":    "ASC",
+		"asc":  "ASC",
+		"ASC":  "ASC",
+		"d":    "DESC",
+		"dsc":  "DESC",
+		"desc": "DESC",
+		"DESC": "DESC",
+	}
 
-	fieldMarks, fields := table.getFields(include)
-	
-	if len(fields) == 0 {
-		fmt.Println("fields length = 0")
-		for i, field := range table.ColumnNames {
-			fields = append(fields, field)
-			fieldMarks = fieldMarks + field
-			if i < len(table.ColumnNames) - 1 {
-				fieldMarks = fieldMarks + ", "
+	orders := []string{}
+	if rawOrders, ok := params["sort"]; ok {
+		fmt.Printf("rawOrders %v\n", rawOrders);
+		for _, raw := range rawOrders {
+			ordered := strings.Split(raw, ",")
+			if table.isField(ordered[0]) {
+				order := ordered[0]
+				if len(ordered) > 1 {
+					if sortType, found := mapper[ordered[1]]; found {
+						order = order + " " + sortType
+					}
+				}
+				orders = append(orders, order)
 			}
 		}
 	}
+
+	orderBy = strings.Join(orders[:], ", ")
+	if len(orderBy) > 0 {
+		orderBy = " ORDER BY " + orderBy
+	}
+	return orderBy
+}
+
+func (table *Table) FindAll(params map[string][]string, include map[string]interface{}) ([]map[string]interface{}, map[string]interface{}, laze.Exception) {
+	fieldMarks, fields := table.getFields(include)
+	orderBy := table.getOrderBy(params)
 
 	rawQuery := "SELECT " + fieldMarks + " FROM "
 	rawQuery = rawQuery + table.Name
@@ -49,7 +73,6 @@ func (table *Table) FindAll(params map[string][]string, include map[string]inter
 
 	filter := table.getFilter(params)
 	whereMarks, wheres := table.createWhereStringFromFilter(filter)
-	values = append(values, wheres...)
 
 	total, countErr := table.count(whereMarks, wheres)
 	if countErr != nil {
@@ -57,11 +80,11 @@ func (table *Table) FindAll(params map[string][]string, include map[string]inter
 	}
 	pagination, page, limit, _ := table.getPagination(params)
 
-	rawQuery = rawQuery + whereMarks + pagination
+	rawQuery = rawQuery + whereMarks + orderBy + pagination
 
 	pages := math.Ceil(float64(total) / float64(limit))
 
-	rows, err := table.Conn.Raw(rawQuery, values...).Rows()
+	rows, err := table.Conn.Raw(rawQuery, wheres...).Rows()
 
 	defer rows.Close()
 
@@ -71,10 +94,10 @@ func (table *Table) FindAll(params map[string][]string, include map[string]inter
 	}
 
 	meta := map[string]interface{}{
-		"page": page,
+		"page":     page,
 		"pageSize": limit,
-		"pages": pages,
-		"total": total,
+		"pages":    pages,
+		"total":    total,
 	}
 
 	data := table.transform(rows, fields)

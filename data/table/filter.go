@@ -19,8 +19,8 @@ func (table *Table) getFilter(params map[string][]string) map[string][]string {
 
 func isStringDataType(dataType string) bool {
 	isChar := strings.Contains(dataType, "char")
-	isTest := strings.Contains(dataType, "text")
-	if isChar || isTest {
+	isText := strings.Contains(dataType, "text")
+	if isChar || isText {
 		return true
 	}
 	return false
@@ -36,7 +36,7 @@ func (table *Table) createWhereStringFromFilter(filter map[string][]string) (str
 	counter := 0
 	for key, vals := range filter {
 		for idx, val := range vals {
-			where = where + key
+			where = where + table.Name + "." + key
 
 			equator := " = "
 			dataType := table.RawColumns[key].Type

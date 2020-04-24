@@ -53,3 +53,10 @@ func (table *Table) recordExistsByPk(pkValue string) laze.Exception {
 	}
 	return nil
 }
+
+func (table *Table) isField(field string) bool {
+	if _, fieldFound := table.RawColumns[field]; fieldFound {
+		return true
+	}
+	return false
+}
