@@ -7,21 +7,23 @@ import (
 	"lazer/laze"
 
 	"lazer/data/table"
+	"lazer/data/trait"
 )
 
 func (db *DB) FindAll(tableName string, params map[string][]string) ([]map[string]interface{}, map[string]interface{}, *exception.Exception) {
-	include := map[string]interface{}{}
+	var include trait.Joined
 	if inc, ok := params["include"]; ok {
-		result := map[string]interface{}{
-			"tableName": tableName,
-			"fields": []string{},
-			"foreignKey": "",
-			"referencedField": "",
-			"type": "",
-			"joined": []map[string]interface{}{},
+		result := Included{
+			tableName: tableName,
+			fields: []string{},
+			foreignKey: "",
+			referencedField: "",
+			referencedTable: "",
+			referenceType: "",
+			joined: []trait.Joined{},
 		}
 		incStr := strings.Join(inc, ",")
-		include = db.parseInclude(tableName, incStr, result)
+		include = db.parseInclude(tableName, incStr, &result)
 	}
 
 	if table, ok := db.tables[tableName]; ok {

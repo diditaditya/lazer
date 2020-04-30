@@ -35,7 +35,7 @@ func (table *Table) Create(data map[string]interface{}) map[string]interface{} {
 	}
 	raw.Scan(row...)
 
-	entry := table.transformRow(row, table.ColumnNames)
+	entry := table.transformRow(row, table.Name, table.ColumnNames)
 
 	return entry
 }

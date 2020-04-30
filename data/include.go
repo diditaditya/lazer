@@ -1,5 +1,55 @@
 package data
 
+import (
+	"lazer/data/trait"
+)
+
+type Included struct {
+	tableName				string
+	fields 					[]string
+	foreignKey			string
+	referencedField	string
+	referencedTable	string
+	referenceType		string
+	joined					[]trait.Joined
+}
+
+func (inc *Included) GetTableName() string {
+	return inc.tableName
+}
+
+func (inc *Included) GetFields() []string {
+	return inc.fields
+}
+
+func (inc *Included) SetFields(fields []string) {
+	inc.fields = fields
+}
+
+func (inc *Included) GetForeignKey() string {
+	return inc.foreignKey
+}
+
+func (inc *Included) GetReferencedField() string {
+	return inc.referencedField
+}
+
+func (inc *Included) GetReferencedTable() string {
+	return inc.referencedTable
+}
+
+func (inc *Included) GetReferenceType() string {
+	return inc.referenceType
+}
+
+func (inc *Included) GetJoined() []trait.Joined {
+	return inc.joined
+}
+
+func (inc *Included) SetJoined(joined []trait.Joined) {
+	inc.joined = joined
+}
+
 func (db *DB) isField(tableName string, field string) bool {
 	if table, tableFound := db.tables[tableName]; tableFound {
 		if _, fieldFound := table.RawColumns[field]; fieldFound {
@@ -28,7 +78,7 @@ func (db *DB) getAllFields(tableName string) []string {
 	return fields
 }
 
-func (db *DB) parseInclude(tableName string, include string, result map[string]interface{}) map[string]interface{} {
+func (db *DB) parseInclude(tableName string, include string, result trait.Joined) trait.Joined {
 	isInBracket := false
 	openBracketCounter := 0
 	closingBracketCounter := 0
@@ -56,46 +106,48 @@ func (db *DB) parseInclude(tableName string, include string, result map[string]i
 				fields = append(fields, field)
 				field = ""
 			} else if db.isAssociation(tableName, field) {
-				joined := []map[string]interface{}{}
-				if prev, ok := result["joined"]; ok {
-					if prevJoined, isValid := prev.([]map[string]interface{}); isValid {
-						joined = prevJoined
-					}
+				joined := []trait.Joined{}
+				prevJoined := result.GetJoined()
+				if len(prevJoined) > 0 { joined = prevJoined }
+
+				joinedRes := Included{
+					tableName: field,
+					fields: []string{},
+					foreignKey: db.associations[field][tableName].Field,
+					referencedField: db.associations[field][tableName].ReferencedField,
+					referencedTable: db.associations[field][tableName].ReferencedTable,
+					referenceType: db.associations[field][tableName].Type,
+					joined: []trait.Joined{},
 				}
-				joinedRes := map[string]interface{}{
-					"tableName": field,
-					"fields": []string{},
-					"foreignKey": db.associations[field][tableName].Field,
-					"referencedField": db.associations[field][tableName].ReferencedField,
-					"type": db.associations[field][tableName].Type,
-					"joined": []map[string]interface{}{},
-				}
-				joined = append(joined, joinedRes)
-				result["joined"] = joined
+
+				joined = append(joined, &joinedRes)
+
+				result.SetJoined(joined)
 				field = ""
 			}
 		case ")":
 			closingBracketCounter = closingBracketCounter + 1
 			if openBracketCounter == closingBracketCounter {
 				isInBracket = false
-				joined := []map[string]interface{}{}
-				if prev, ok := result["joined"]; ok {
-					if prevJoined, isValid := prev.([]map[string]interface{}); isValid {
-						joined = prevJoined
-					}
+
+				joined := []trait.Joined{}
+				prevJoined := result.GetJoined()
+				if len(prevJoined) > 0 { joined = prevJoined }
+
+				joinedRes := Included{
+					tableName: joinedTable,
+					fields: []string{},
+					foreignKey: db.associations[joinedTable][tableName].Field,
+					referencedField: db.associations[joinedTable][tableName].ReferencedField,
+					referencedTable: db.associations[joinedTable][tableName].ReferencedTable,
+					referenceType: db.associations[joinedTable][tableName].Type,
+					joined: []trait.Joined{},
 				}
-				joinedRes := map[string]interface{}{
-					"tableName": joinedTable,
-					"fields": []string{},
-					"foreignKey": db.associations[joinedTable][tableName].Field,
-					"referencedField": db.associations[joinedTable][tableName].ReferencedField,
-					"type": db.associations[joinedTable][tableName].Type,
-					"joined": []map[string]interface{}{},
-				}
-				res := db.parseInclude(joinedTable, joinedFieldsStr, joinedRes)
+
+				res := db.parseInclude(joinedTable, joinedFieldsStr, &joinedRes)
 				joined = append(joined, res)
 
-				result["joined"] = joined
+				result.SetJoined(joined)
 				joinedTable = ""
 				joinedFieldsStr = ""
 			} else {
@@ -115,22 +167,23 @@ func (db *DB) parseInclude(tableName string, include string, result map[string]i
 			fields = append(fields, field)
 			field = ""
 		} else if db.isAssociation(tableName, field) {
-			joined := []map[string]interface{}{}
-			if prev, ok := result["joined"]; ok {
-				if prevJoined, isValid := prev.([]map[string]interface{}); isValid {
-					joined = prevJoined
-				}
+			joined := []trait.Joined{}
+			prevJoined := result.GetJoined()
+			if len(prevJoined) > 0 { joined = prevJoined }
+
+			joinedRes := Included{
+				tableName: field,
+				fields: db.getAllFields(field),
+				foreignKey: db.associations[field][tableName].Field,
+				referencedField: db.associations[field][tableName].ReferencedField,
+				referencedTable: db.associations[field][tableName].ReferencedTable,
+				referenceType: db.associations[field][tableName].Type,
+				joined: []trait.Joined{},
 			}
-			joinedRes := map[string]interface{}{
-				"tableName": field,
-				"fields": db.getAllFields(field),
-				"foreignKey": db.associations[field][tableName].Field,
-				"referencedField": db.associations[field][tableName].ReferencedField,
-				"type": db.associations[field][tableName].Type,
-				"joined": []map[string]interface{}{},
-			}
-			joined = append(joined, joinedRes)
-			result["joined"] = joined
+
+			joined = append(joined, &joinedRes)
+
+			result.SetJoined(joined)
 		}
 	}
 
@@ -138,7 +191,7 @@ func (db *DB) parseInclude(tableName string, include string, result map[string]i
 		fields = db.getAllFields(tableName)
 	}
 
-	result["fields"] = fields
+	result.SetFields(fields)
 
 	return result
 }

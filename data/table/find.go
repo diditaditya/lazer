@@ -7,6 +7,7 @@ import (
 
 	exception "lazer/error"
 	"lazer/laze"
+	"lazer/data/trait"
 )
 
 func (table *Table) count(where string, values []interface{}) (int, laze.Exception) {
@@ -58,7 +59,7 @@ func (table *Table) getOrderBy(params map[string][]string) (orderBy string) {
 	return orderBy
 }
 
-func (table *Table) FindAll(params map[string][]string, include map[string]interface{}) ([]map[string]interface{}, map[string]interface{}, laze.Exception) {
+func (table *Table) FindAll(params map[string][]string, include trait.Joined) ([]map[string]interface{}, map[string]interface{}, laze.Exception) {
 	fieldMarks, fields := table.getFields(include)
 	orderBy := table.getOrderBy(params)
 
@@ -100,7 +101,7 @@ func (table *Table) FindAll(params map[string][]string, include map[string]inter
 		"total":    total,
 	}
 
-	data := table.transform(rows, fields)
+	data := table.transform(rows, fields, include)
 	return data, meta, nil
 }
 
@@ -115,7 +116,7 @@ func (table *Table) FindByPk(value string) map[string]interface{} {
 		fmt.Println(err)
 	}
 
-	data := table.transform(rows, table.ColumnNames)
+	data := table.transform(rows, table.ColumnNames, nil)
 
 	if len(data) > 0 {
 		return data[0]

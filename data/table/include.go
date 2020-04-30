@@ -2,32 +2,30 @@ package table
 
 import (
 	"fmt"
+
+	"lazer/data/trait"
 )
 
-func (table *Table) parseFields(raw map[string]interface{}, fields []string) []string {
-	tableName := ""
-	incTable, isTableOk := raw["tableName"].(string)
-	if isTableOk { tableName = incTable }
-	incFields, isFieldsOk := raw["fields"].([]string)
-	if isFieldsOk {
-		for _, field := range incFields {
-			fieldName := tableName + "." + field
-			fields = append(fields, fieldName)
-		}
+func (table *Table) parseFields(raw trait.Joined, fields []string) []string {
+	if raw == nil { return fields }
+
+	tableName := raw.GetTableName()
+	incFields := raw.GetFields()
+	for _, field := range incFields {
+		fieldName := tableName + "." + field
+		fields = append(fields, fieldName)
 	}
 
-	incJoined, isJoinedOk := raw["joined"].([]map[string]interface{})
-	if isJoinedOk {
-		for _, joined := range incJoined {
-			joinedFields := table.parseFields(joined, []string{})
-			fields = append(fields, joinedFields...)
-		}
+	incJoined := raw.GetJoined()
+	for _, joined := range incJoined {
+		joinedFields := table.parseFields(joined, []string{})
+		fields = append(fields, joinedFields...)
 	}
 
 	return fields
 }
 
-func (table *Table) getFields(raw map[string]interface{}) (fieldMarks string, fields []string) {
+func (table *Table) getFields(raw trait.Joined) (fieldMarks string, fields []string) {
 	fields = table.parseFields(raw, []string{})
 
 	if len(fields) == 0 {
@@ -46,44 +44,33 @@ func (table *Table) getFields(raw map[string]interface{}) (fieldMarks string, fi
 	return fieldMarks, fields
 }
 
-func (table *Table) parseJoined(raw map[string]interface{}, result []map[string]string) []map[string]string {
-	incJoined, isJoinedOk := raw["joined"].([]map[string]interface{})
-	if isJoinedOk {
-		for _, joined := range incJoined {
-			association := map[string]string{}
-			tableName, isTableNameOk := joined["tableName"].(string)
-			if isTableNameOk {
-				association["tableName"] = tableName
-			}
-			field, isAssociatedOk := joined["foreignKey"].(string)
-			if isAssociatedOk {
-				association["field"] = field
-			}
-			referencedField, isRefFieldOk := joined["referencedField"].(string)
-			if isRefFieldOk {
-				association["referencedField"] = referencedField
-			}
-			referencedTable, isRefTableOk := raw["tableName"].(string)
-			if isRefTableOk {
-				association["referencedTable"] = referencedTable
-			}
+func (table *Table) parseJoined(raw trait.Joined, result []map[string]string) []map[string]string {
+	if raw == nil { return result }
 
-			result = append(result, association)
+	incJoined := raw.GetJoined()
+	for _, joined := range incJoined {
+		association := map[string]string{
+			"tableName": joined.GetTableName(),
+			"field": joined.GetForeignKey(),
+			"referencedField": joined.GetReferencedField(),
+			"referencedTable": joined.GetReferencedTable(),
+			"referenceType": joined.GetReferenceType(),
+		}
 
-			deeperJoin, isDeepJoinOk := joined["joined"].([]map[string]interface{})
-			if isDeepJoinOk {
-				if len(deeperJoin) > 0 {
-					deeperAssociations := table.parseJoined(joined, []map[string]string{})
-					result = append(result, deeperAssociations...)
-				}
-			}
+		result = append(result, association)
+
+		deeperJoined := joined.GetJoined()
+
+		if len(deeperJoined) > 0 {
+			deeperAssociations := table.parseJoined(joined, []map[string]string{})
+			result = append(result, deeperAssociations...)
 		}
 	}
 
 	return result
 }
 
-func (table *Table) getJoined(raw map[string]interface{}) (marks string, values []string) {
+func (table *Table) getJoined(raw trait.Joined) (marks string, values []string) {
 	joins := table.parseJoined(raw, []map[string]string{})
 
 	for i, join := range joins {

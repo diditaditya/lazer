@@ -2,8 +2,11 @@ package table
 
 import (
 	"bytes"
+	"fmt"
 	"database/sql"
 	"strings"
+
+	"lazer/data/trait"
 )
 
 func unpack(raw string) (tableName string, field string) {
@@ -16,48 +19,43 @@ func unpack(raw string) (tableName string, field string) {
 	return tableName, field
 }
 
-func (table *Table) transformRow(row []interface{}, fields []string) map[string]interface{} {
+func castToInterface(raw interface{}) interface{} {
+	// get the raw type
+	casted := *(raw).(*interface{})
+
+	// you can print out the type as follow
+	// rawType := fmt.Sprintf("%T", casted)
+	// fmt.Println(rawType)
+
+	// handle the data based on its type
+	switch casted.(type) {
+	case []uint8:
+		// for now, let's turn them all into string
+		arByte, ok := casted.([]uint8)
+		if ok {
+			str := bytes.NewBuffer(arByte).String()
+			return str
+		} else {
+			return casted
+		}
+	default:
+		return casted
+	}
+}
+
+func (table *Table) transformRow(row []interface{}, tableName string, fields []string) map[string]interface{} {
 	// the stored row has must be mapped to the column names
 	// this is rather unassuring, will the indices always be correct?
 	if len(fields) == 0 { fields = table.ColumnNames }
 	mapped := make(map[string]interface{})
 	for i := 0; i < len(fields); i++ {
 		name := fields[i]
-		tableName, field := unpack(fields[i])
-		if tableName == table.Name { name = field }
-		mapped[name] = row[i]
+		mapped[name] = castToInterface(row[i])
 	}
-
-	// the mapped row still has array buffers in it, let's handle them
-	entry := make(map[string]interface{})
-	for key, raw := range mapped {
-		// get the raw type
-		casted := *(raw).(*interface{})
-
-		// you can print out the type as follow
-		// rawType := fmt.Sprintf("%T", casted)
-		// fmt.Println(rawType)
-
-		// handle the data based on its type
-		switch casted.(type) {
-		case []uint8:
-			// for now, let's turn them all into string
-			arByte, ok := casted.([]uint8)
-			if ok {
-				str := bytes.NewBuffer(arByte).String()
-				entry[key] = str
-			} else {
-				entry[key] = casted
-			}
-		default:
-			entry[key] = casted
-		}
-	}
-
-	return entry
+	return mapped
 }
 
-func (table *Table) transform(rows *sql.Rows, fields []string) []map[string]interface{} {
+func (table *Table) transform(rows *sql.Rows, fields []string, include trait.Joined) []map[string]interface{} {
 	// create slice of map to hold the data
 	data := []map[string]interface{}{}
 	if len(fields) == 0 { fields = table.ColumnNames }
@@ -71,10 +69,23 @@ func (table *Table) transform(rows *sql.Rows, fields []string) []map[string]inte
 			row = append(row, &container)
 		}
 		rows.Scan(row...)
-		entry := table.transformRow(row, fields)
+		entry := table.transformRow(row, table.Name, fields)
 
 		data = append(data, entry)
 	}
 
 	return data
+}
+
+func transformIncludes(raw map[string]interface{}, tableName string, include trait.Joined) (result map[string]interface{}) {
+	joinedTables := map[string]interface{}{}
+	incJoined := include.GetJoined()
+	for _, joinedTable := range incJoined {
+		tableJoined := joinedTable.GetTableName()
+		joinType := joinedTable.GetReferenceType()
+		joinedTables[tableJoined] = joinType
+	}
+
+	fmt.Printf("joined: %v\n", joinedTables)
+	return joinedTables
 }
