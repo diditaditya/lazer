@@ -55,6 +55,8 @@ func (table *Table) getOrderBy(params map[string][]string) (orderBy string) {
 	orderBy = strings.Join(orders[:], ", ")
 	if len(orderBy) > 0 {
 		orderBy = " ORDER BY " + orderBy
+	} else {
+		orderBy = " ORDER BY " + table.Name + "." + table.Pk
 	}
 	return orderBy
 }

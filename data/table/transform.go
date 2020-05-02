@@ -114,9 +114,18 @@ type collection struct {
 }
 
 func transformIncludes(raw []map[string]interface{}, tableName string, include trait.Joined) (result []map[string]interface{}) {
-	incJoined := include.GetJoined()
 	
-	if include == nil || len(incJoined) == 0 {
+	if include == nil {
+		for _, row := range raw {
+			data, _ := clearCurrentTableName(row, tableName)
+			result = append(result, data)
+		}
+		return result
+	}
+
+	incJoined := include.GetJoined()
+
+	if len(incJoined) == 0 {
 		for _, row := range raw {
 			data, _ := clearCurrentTableName(row, tableName)
 			result = append(result, data)
