@@ -2,7 +2,6 @@ package table
 
 import (
 	"bytes"
-	// "fmt"
 	"database/sql"
 	"strings"
 
@@ -114,7 +113,6 @@ type collection struct {
 }
 
 func transformIncludes(raw []map[string]interface{}, tableName string, include trait.Joined) (result []map[string]interface{}) {
-	
 	if include == nil {
 		for _, row := range raw {
 			data, _ := clearCurrentTableName(row, tableName)

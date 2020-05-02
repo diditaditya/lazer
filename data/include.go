@@ -67,7 +67,7 @@ func (db *DB) parseInclude(tableName string, include string, result trait.Joined
 				joinedRes := Included{
 					tableName: field,
 					pk: db.tables[field].Pk,
-					fields: []string{},
+					fields: db.getAllFields(field),
 					foreignKey: db.associations[field][tableName].Field,
 					referencedField: db.associations[field][tableName].ReferencedField,
 					referencedTable: db.associations[field][tableName].ReferencedTable,
