@@ -8,6 +8,7 @@ type SQLQuery interface {
 
 type Joined interface {
 	GetTableName() string
+	GetTablePk() string
 	GetFields() []string
 	GetForeignKey() string
 	GetReferencedField() string

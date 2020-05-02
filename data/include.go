@@ -66,6 +66,7 @@ func (db *DB) parseInclude(tableName string, include string, result trait.Joined
 
 				joinedRes := Included{
 					tableName: field,
+					pk: db.tables[field].Pk,
 					fields: []string{},
 					foreignKey: db.associations[field][tableName].Field,
 					referencedField: db.associations[field][tableName].ReferencedField,
@@ -90,6 +91,7 @@ func (db *DB) parseInclude(tableName string, include string, result trait.Joined
 
 				joinedRes := Included{
 					tableName: joinedTable,
+					pk: db.tables[joinedTable].Pk,
 					fields: []string{},
 					foreignKey: db.associations[joinedTable][tableName].Field,
 					referencedField: db.associations[joinedTable][tableName].ReferencedField,
@@ -127,6 +129,7 @@ func (db *DB) parseInclude(tableName string, include string, result trait.Joined
 
 			joinedRes := Included{
 				tableName: field,
+				pk: db.tables[field].Pk,
 				fields: db.getAllFields(field),
 				foreignKey: db.associations[field][tableName].Field,
 				referencedField: db.associations[field][tableName].ReferencedField,

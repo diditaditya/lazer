@@ -6,6 +6,7 @@ import (
 
 type Included struct {
 	tableName				string
+	pk							string
 	fields 					[]string
 	foreignKey			string
 	referencedField	string
@@ -16,6 +17,10 @@ type Included struct {
 
 func (inc *Included) GetTableName() string {
 	return inc.tableName
+}
+
+func (inc *Included) GetTablePk() string {
+	return inc.pk
 }
 
 func (inc *Included) GetFields() []string {
