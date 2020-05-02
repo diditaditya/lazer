@@ -23,6 +23,10 @@ func (inc *Included) GetTablePk() string {
 	return inc.pk
 }
 
+func (inc *Included) SetTablePk(pk string) {
+	inc.pk = pk
+}
+
 func (inc *Included) GetFields() []string {
 	return inc.fields
 }

@@ -86,6 +86,16 @@ func transformIncludes(raw map[string]interface{}, tableName string, include tra
 		joinedTables[tableJoined] = joinType
 	}
 
+	// if the table is joined
+	// 	go through each row, check for duplicates based on primary key
+	//	collect the duplicates
+	//	create new row
+	//	set the fields of the current table as attributes of the new row
+	//	check the joined tables reference type
+	//	if the type is belongs to
+	//		set the joined table name as attribute to new row, accepting slice of rows
+	//		set the collected to the attribute, and run again from the beginning by using the collection
+
 	fmt.Printf("joined: %v\n", joinedTables)
 	return joinedTables
 }

@@ -148,6 +148,7 @@ func (db *DB) parseInclude(tableName string, include string, result trait.Joined
 		fields = db.getAllFields(tableName)
 	}
 
+	result.SetTablePk(db.tables[tableName].Pk)
 	result.SetFields(fields)
 
 	return result

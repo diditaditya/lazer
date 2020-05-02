@@ -11,8 +11,16 @@ func (table *Table) parseFields(raw trait.Joined, fields []string) []string {
 
 	tableName := raw.GetTableName()
 	incFields := raw.GetFields()
+	pk := raw.GetTablePk()
+	isPkIncluded := false
 	for _, field := range incFields {
+		if field == pk { isPkIncluded = true }
 		fieldName := tableName + "." + field
+		fields = append(fields, fieldName)
+	}
+
+	if (!isPkIncluded) {
+		fieldName := tableName + "." + pk
 		fields = append(fields, fieldName)
 	}
 
