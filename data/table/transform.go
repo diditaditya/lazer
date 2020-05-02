@@ -2,7 +2,7 @@ package table
 
 import (
 	"bytes"
-	"fmt"
+	// "fmt"
 	"database/sql"
 	"strings"
 
@@ -156,11 +156,14 @@ func transformIncludes(raw []map[string]interface{}, tableName string, include t
 	}
 
 	// check the collected rows, recursively process if joined
-	for collPk, coll := range collected {
+	for _, coll := range collected {
 		for _, joined := range incJoined {
 			joinedTableName := joined.GetTableName()
 			if len(coll.joined) > 0 {
-				coll.data[joinedTableName] = transformIncludes(coll.joined, joinedTableName, joined)
+				rawJoined := coll.joined
+				refType := joined.GetReferenceType()
+				if refType == "hasMany" { rawJoined = []map[string]interface{}{ coll.joined[0] } }
+				coll.data[joinedTableName] = transformIncludes(rawJoined, joinedTableName, joined)
 			} else {
 				var nulled map[string]interface{}
 				coll.data[joinedTableName] = nulled
