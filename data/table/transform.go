@@ -74,28 +74,100 @@ func (table *Table) transform(rows *sql.Rows, fields []string, include trait.Joi
 		data = append(data, entry)
 	}
 
-	return data
+	result := transformIncludes(data, table.Name, include)
+
+	return result
 }
 
-func transformIncludes(raw map[string]interface{}, tableName string, include trait.Joined) (result map[string]interface{}) {
-	joinedTables := map[string]interface{}{}
-	incJoined := include.GetJoined()
-	for _, joinedTable := range incJoined {
-		tableJoined := joinedTable.GetTableName()
-		joinType := joinedTable.GetReferenceType()
-		joinedTables[tableJoined] = joinType
+func clearCurrentTableName(row map[string]interface{}, tableName string) (map[string]interface{}, map[string]interface{}) {
+	data := map[string]interface{}{}
+	joined := map[string]interface{}{}
+	for key, val := range row {
+		table, col := unpack(key)
+		field := key
+		if table == tableName {
+			field = col
+			data[field] = val
+		} else {
+			joined[field] = val
+		}
 	}
 
-	// if the table is joined
-	// 	go through each row, check for duplicates based on primary key
-	//	collect the duplicates
-	//	create new row
-	//	set the fields of the current table as attributes of the new row
-	//	check the joined tables reference type
-	//	if the type is belongs to
-	//		set the joined table name as attribute to new row, accepting slice of rows
-	//		set the collected to the attribute, and run again from the beginning by using the collection
+	isAllNull := true
+	for _, val := range joined {
+		if val != nil {
+			isAllNull = false
+			break
+		}
+	}
 
-	fmt.Printf("joined: %v\n", joinedTables)
-	return joinedTables
+	if isAllNull {
+		var nulled map[string]interface{}
+		joined = nulled
+	}
+	return data, joined
+}
+
+type collection struct {
+	data		map[string]interface{}
+	joined	[]map[string]interface{}
+}
+
+func transformIncludes(raw []map[string]interface{}, tableName string, include trait.Joined) (result []map[string]interface{}) {
+	incJoined := include.GetJoined()
+	
+	if include == nil || len(incJoined) == 0 {
+		for _, row := range raw {
+			data, _ := clearCurrentTableName(row, tableName)
+			result = append(result, data)
+		}
+		return result
+	}
+
+	collected := map[string]*collection{}
+	pk := include.GetTablePk()
+
+	// collect the duplicates which indicates joined tables
+	for _, row := range raw {
+		for key, val := range row {
+			table, field := unpack(key)
+			isPkField := table == tableName && field == pk
+			if isPkField {
+				pkVal, ok := val.(string)
+				if ok {
+					_, pkFound := collected[pkVal]
+					if pkFound {
+						_, joined := clearCurrentTableName(row, tableName)
+						collected[pkVal].joined = append(collected[pkVal].joined, joined)
+					} else {
+						base, joined := clearCurrentTableName(row, tableName)
+						collected[pkVal] = &collection{
+							data: base,
+							joined: []map[string]interface{}{},
+						}
+						if joined != nil {
+							collected[pkVal].joined = append(collected[pkVal].joined, joined)
+						}
+					}
+					break
+				}
+			}
+		}
+	}
+
+	// check the collected rows, recursively process if joined
+	for collPk, coll := range collected {
+		for _, joined := range incJoined {
+			joinedTableName := joined.GetTableName()
+			if len(coll.joined) > 0 {
+				coll.data[joinedTableName] = transformIncludes(coll.joined, joinedTableName, joined)
+			} else {
+				var nulled map[string]interface{}
+				coll.data[joinedTableName] = nulled
+			}
+		}
+		result = append(result, coll.data)
+	}
+
+	return result
 }
