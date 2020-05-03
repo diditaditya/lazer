@@ -35,6 +35,7 @@ func (table *Table) getOrderBy(params map[string][]string) (orderBy string) {
 		"DESC": "DESC",
 	}
 
+	isPkSorted := false
 	orders := []string{}
 	if rawOrders, ok := params["sort"]; ok {
 		fmt.Printf("rawOrders %v\n", rawOrders);
@@ -42,9 +43,10 @@ func (table *Table) getOrderBy(params map[string][]string) (orderBy string) {
 			ordered := strings.Split(raw, ",")
 			if table.isField(ordered[0]) {
 				order := ordered[0]
+				if order == table.Pk { isPkSorted = true }
 				if len(ordered) > 1 {
 					if sortType, found := mapper[ordered[1]]; found {
-						order = order + " " + sortType
+						order = table.Name + "." + order + " " + sortType
 					}
 				}
 				orders = append(orders, order)
@@ -52,11 +54,14 @@ func (table *Table) getOrderBy(params map[string][]string) (orderBy string) {
 		}
 	}
 
+	if !isPkSorted {
+		order := table.Name + "." + table.Pk
+		orders = append(orders, order)
+	}
+
 	orderBy = strings.Join(orders[:], ", ")
 	if len(orderBy) > 0 {
 		orderBy = " ORDER BY " + orderBy
-	} else {
-		orderBy = " ORDER BY " + table.Name + "." + table.Pk
 	}
 	return orderBy
 }
