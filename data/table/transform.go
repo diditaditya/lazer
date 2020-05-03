@@ -108,6 +108,7 @@ func clearCurrentTableName(row map[string]interface{}, tableName string) (map[st
 }
 
 type collection struct {
+	order		int
 	data		map[string]interface{}
 	joined	[]map[string]interface{}
 }
@@ -135,6 +136,7 @@ func transformIncludes(raw []map[string]interface{}, tableName string, include t
 	pk := include.GetTablePk()
 
 	// collect the duplicates which indicates joined tables
+	counter := 0
 	for _, row := range raw {
 		for key, val := range row {
 			table, field := unpack(key)
@@ -149,9 +151,11 @@ func transformIncludes(raw []map[string]interface{}, tableName string, include t
 					} else {
 						base, joined := clearCurrentTableName(row, tableName)
 						collected[pkVal] = &collection{
+							order: counter,
 							data: base,
 							joined: []map[string]interface{}{},
 						}
+						counter = counter + 1
 						if joined != nil {
 							collected[pkVal].joined = append(collected[pkVal].joined, joined)
 						}
@@ -162,8 +166,14 @@ func transformIncludes(raw []map[string]interface{}, tableName string, include t
 		}
 	}
 
-	// check the collected rows, recursively process if joined
+	// reorder the collection
+	ordered := make([]*collection, len(collected))
 	for _, coll := range collected {
+		ordered[coll.order] = coll
+	}
+
+	// check the collected rows, recursively process if joined
+	for _, coll := range ordered {
 		for _, joined := range incJoined {
 			joinedTableName := joined.GetTableName()
 			if len(coll.joined) > 0 {
