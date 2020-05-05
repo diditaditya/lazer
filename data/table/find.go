@@ -70,14 +70,7 @@ func (table *Table) FindAll(params map[string][]string, include trait.Joined) ([
 	fieldMarks, fields := table.getFields(include)
 	orderBy := table.getOrderBy(params)
 
-	rawQuery := "SELECT " + fieldMarks + " FROM "
-	rawQuery = rawQuery + table.Name
-
-	joinMarks, joined := table.getJoined(include)
-
-	if len(joined) > 0 {
-		rawQuery = rawQuery + " " + joinMarks
-	}
+	base := "SELECT " + fieldMarks + " FROM "
 
 	filter := table.getFilter(params)
 	whereMarks, wheres := table.createWhereStringFromFilter(filter)
@@ -88,7 +81,11 @@ func (table *Table) FindAll(params map[string][]string, include trait.Joined) ([
 	}
 	pagination, page, limit, _ := table.getPagination(params)
 
-	rawQuery = rawQuery + whereMarks + orderBy + pagination
+	from := fmt.Sprintf("(SELECT * FROM %s %s %s) AS %s ", table.Name, whereMarks, pagination, table.Name)
+
+	joinMarks, _ := table.getJoined(include)
+
+	rawQuery := base + from + joinMarks + orderBy
 
 	pages := math.Ceil(float64(total) / float64(limit))
 
