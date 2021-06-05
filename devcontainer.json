@@ -1,0 +1,6 @@
+{
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "go",
+  "workspaceFolder": "/go/src/lazer",
+  "extensions": ["golang.go"]
+}
