@@ -3,6 +3,8 @@ package query
 import (
 	"fmt"
 	"strings"
+
+	def "lazer/laze/definitions"
 )
 
 type MySQL struct {}
@@ -39,4 +41,9 @@ func (q *MySQL) GetAssociations(tableName string) string {
 	whereSubbed := fmt.Sprintf(where, tableName)
 	query := baseSubbed + " " + whereSubbed
 	return query
+}
+
+func (q *MySQL) CreateTable(tableDef def.TableDef) string {
+	base := "CREATE"
+	return base
 }

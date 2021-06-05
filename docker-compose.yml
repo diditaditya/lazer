@@ -4,20 +4,23 @@ services:
   go:
     image: golang:1.13-buster
     container_name: go
+    working_dir: /go/src/lazer
     stdin_open: true
     tty: true
     ports:
       - 3500:8080
       - 3600:3600
     volumes:
-      - ${PWD}:/go/src/lazer
+      - ${PWD}/src:/go/src/lazer
+    env_file:
+      - .env
     command: ['/bin/bash']
 
   mysql:
-    image: mysql:8
-    container_name: mysql8
+    image: mysql:5
+    container_name: mysql
     volumes:
-      - ${PWD}/.persisted/mysql8:/var/lib/mysql
+      - ${PWD}/.persisted/mysql:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}

@@ -11,8 +11,8 @@ import (
 
 func getEnv() {
 	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if err == nil {
+		log.Println("Reading from .env file")
 	}
 }
 
