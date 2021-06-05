@@ -1,0 +1,6 @@
+{
+    "watch": ["/go/src/lazer"],
+    "ext": "go",
+    "ignore": ["*gen*.go"],
+    "exec": "go run /go/src/lazer/main.go"
+  }
