@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	exception "lazer/error"
 	"lazer/laze"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (handler *Handler) error(err laze.Exception, c *gin.Context) {
@@ -28,7 +29,7 @@ func (handler *Handler) error(err laze.Exception, c *gin.Context) {
 		status = http.StatusInternalServerError
 	}
 
-	c.JSON(status, map[string]interface{}{
+	c.JSON(status, map[string]any{
 		"message": message,
 	})
 }

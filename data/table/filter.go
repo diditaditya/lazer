@@ -26,13 +26,13 @@ func isStringDataType(dataType string) bool {
 	return false
 }
 
-func (table *Table) createWhereStringFromFilter(filter map[string][]string) (string, []interface{}) {
+func (table *Table) createWhereStringFromFilter(filter map[string][]string) (string, []any) {
 	if len(filter) == 0 {
-		return "", []interface{}{}
+		return "", []any{}
 	}
 
 	where := " WHERE "
-	values := []interface{}{}
+	values := []any{}
 	counter := 0
 	for key, vals := range filter {
 		for idx, val := range vals {

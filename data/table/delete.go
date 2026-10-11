@@ -23,15 +23,14 @@ func (table *Table) Delete(params map[string][]string) laze.Exception {
 	rawQuery = rawQuery + where
 
 	rows, err := table.Conn.Raw(rawQuery, values...).Rows()
-
-	defer rows.Close()
-
 	if err != nil {
 		fmt.Println("[table] error deleting from", table.Name)
 		fmt.Println(err)
 		ex := exception.FromError(err, exception.INTERNALERROR)
 		return ex
 	}
+
+	defer rows.Close()
 
 	return nil
 }
@@ -40,7 +39,6 @@ func (table *Table) DeleteByPk(value string) laze.Exception {
 	condition := fmt.Sprintf("%s = ?", table.Pk)
 
 	found, err := table.Conn.Table(table.Name).Where(condition, value).Rows()
-
 	if err != nil {
 		fmt.Println("[DB] error finding entry from ", table.Name)
 		fmt.Println(err)
@@ -53,22 +51,19 @@ func (table *Table) DeleteByPk(value string) laze.Exception {
 		return ex
 	}
 
-	fmt.Printf("%v\n", *found)
-
 	rawQuery := "DELETE FROM "
 	rawQuery = rawQuery + table.Name
 	rawQuery = rawQuery + " WHERE " + condition
 
 	rows, err := table.Conn.Raw(rawQuery, value).Rows()
-
-	defer rows.Close()
-
 	if err != nil {
 		fmt.Println("[DB] error deleting from ", table.Name)
 		fmt.Println(err)
 		ex := exception.FromError(err, exception.INTERNALERROR)
 		return ex
 	}
+
+	defer rows.Close()
 
 	return nil
 }

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+
 	"github.com/gin-gonic/gin"
 
 	exception "lazer/error"
@@ -13,17 +14,16 @@ func (handler *Handler) Update(c *gin.Context) {
 	query := c.Request.URL.Query()
 
 	if err != nil {
-		c.JSON(400, map[string]interface{}{
+		c.JSON(400, map[string]any{
 			"message": "your fault..",
 			"error":   err,
 		})
 		return
 	}
 
-	mapped := make(map[string]interface{})
+	mapped := make(map[string]any)
 
 	err = json.Unmarshal(rawBody, &mapped)
-
 	if err != nil {
 		ex := exception.FromError(err, exception.INTERNALERROR)
 		handler.error(ex, c)
@@ -35,7 +35,7 @@ func (handler *Handler) Update(c *gin.Context) {
 	if updateErr != nil {
 		handler.error(updateErr, c)
 	} else {
-		resp := map[string]interface{}{
+		resp := map[string]any{
 			"message": "updated",
 		}
 
@@ -47,19 +47,17 @@ func (handler *Handler) UpdateByPk(c *gin.Context) {
 	tableName := c.Param("name")
 	pk := c.Param("pk")
 	rawBody, err := c.GetRawData()
-
 	if err != nil {
-		c.JSON(400, map[string]interface{}{
+		c.JSON(400, map[string]any{
 			"message": "your fault..",
 			"error":   err,
 		})
 		return
 	}
 
-	mapped := make(map[string]interface{})
+	mapped := make(map[string]any)
 
 	err = json.Unmarshal(rawBody, &mapped)
-
 	if err != nil {
 		ex := exception.FromError(err, exception.INTERNALERROR)
 		handler.error(ex, c)
@@ -71,7 +69,7 @@ func (handler *Handler) UpdateByPk(c *gin.Context) {
 	if updateErr != nil {
 		handler.error(updateErr, c)
 	} else {
-		resp := map[string]interface{}{
+		resp := map[string]any{
 			"message": "updated",
 		}
 

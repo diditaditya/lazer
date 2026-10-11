@@ -8,8 +8,8 @@ func (handler *Handler) GetAssociations(c *gin.Context) {
 	tableName := c.Param("name")
 
 	data := handler.app.GetAssociations(tableName)
-	
-	resp := map[string]interface{}{
+
+	resp := map[string]any{
 		"message": "it's complicated",
 		"data":    data,
 	}

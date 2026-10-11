@@ -1,7 +1,6 @@
 package table
 
 import (
-	"bytes"
 	"database/sql"
 	"strings"
 
@@ -18,35 +17,32 @@ func unpack(raw string) (tableName string, field string) {
 	return tableName, field
 }
 
-func castToInterface(raw interface{}) interface{} {
+func castToInterface(raw any) any {
 	// get the raw type
-	casted := *(raw).(*interface{})
+	ptr := raw.(*any)
+	casted := *ptr
 
 	// you can print out the type as follow
 	// rawType := fmt.Sprintf("%T", casted)
 	// fmt.Println(rawType)
 
 	// handle the data based on its type
-	switch casted.(type) {
-	case []uint8:
+	switch val := casted.(type) {
+	case []byte:
 		// for now, let's turn them all into string
-		arByte, ok := casted.([]uint8)
-		if ok {
-			str := bytes.NewBuffer(arByte).String()
-			return str
-		} else {
-			return casted
-		}
+		return string(val)
 	default:
 		return casted
 	}
 }
 
-func (table *Table) transformRow(row []interface{}, tableName string, fields []string) map[string]interface{} {
+func (table *Table) transformRow(row []any, tableName string, fields []string) map[string]any {
 	// the stored row has must be mapped to the column names
 	// this is rather unassuring, will the indices always be correct?
-	if len(fields) == 0 { fields = table.ColumnNames }
-	mapped := make(map[string]interface{})
+	if len(fields) == 0 {
+		fields = table.ColumnNames
+	}
+	mapped := make(map[string]any)
 	for i := 0; i < len(fields); i++ {
 		name := fields[i]
 		mapped[name] = castToInterface(row[i])
@@ -54,18 +50,18 @@ func (table *Table) transformRow(row []interface{}, tableName string, fields []s
 	return mapped
 }
 
-func (table *Table) transform(rows *sql.Rows, fields []string, include trait.Joined) []map[string]interface{} {
+func (table *Table) transform(rows *sql.Rows, fields []string, include trait.Joined) []map[string]any {
 	// create slice of map to hold the data
-	data := []map[string]interface{}{}
-	if len(fields) == 0 { fields = table.ColumnNames }
+	data := []map[string]any{}
+	if len(fields) == 0 {
+		fields = table.ColumnNames
+	}
 
 	for rows.Next() {
 		// create slice of interfaces to temporarily store the row
-		row := make([]interface{}, 0, len(fields))
+		row := make([]any, 0, len(fields))
 		for i := 0; i < len(fields); i++ {
-			var container interface{}
-			container = struct{}{}
-			row = append(row, &container)
+			row = append(row, new(any))
 		}
 		rows.Scan(row...)
 		entry := table.transformRow(row, table.Name, fields)
@@ -78,9 +74,9 @@ func (table *Table) transform(rows *sql.Rows, fields []string, include trait.Joi
 	return result
 }
 
-func clearCurrentTableName(row map[string]interface{}, tableName string) (map[string]interface{}, map[string]interface{}) {
-	data := map[string]interface{}{}
-	joined := map[string]interface{}{}
+func clearCurrentTableName(row map[string]any, tableName string) (map[string]any, map[string]any) {
+	data := map[string]any{}
+	joined := map[string]any{}
 	for key, val := range row {
 		table, col := unpack(key)
 		field := key
@@ -101,19 +97,19 @@ func clearCurrentTableName(row map[string]interface{}, tableName string) (map[st
 	}
 
 	if isAllNull {
-		var nulled map[string]interface{}
+		var nulled map[string]any
 		joined = nulled
 	}
 	return data, joined
 }
 
 type collection struct {
-	order		int
-	data		map[string]interface{}
-	joined	[]map[string]interface{}
+	order  int
+	data   map[string]any
+	joined []map[string]any
 }
 
-func transformIncludes(raw []map[string]interface{}, tableName string, include trait.Joined) (result []map[string]interface{}) {
+func transformIncludes(raw []map[string]any, tableName string, include trait.Joined) (result []map[string]any) {
 	if include == nil {
 		for _, row := range raw {
 			data, _ := clearCurrentTableName(row, tableName)
@@ -151,9 +147,9 @@ func transformIncludes(raw []map[string]interface{}, tableName string, include t
 					} else {
 						base, joined := clearCurrentTableName(row, tableName)
 						collected[pkVal] = &collection{
-							order: counter,
-							data: base,
-							joined: []map[string]interface{}{},
+							order:  counter,
+							data:   base,
+							joined: []map[string]any{},
 						}
 						counter = counter + 1
 						if joined != nil {
@@ -179,10 +175,12 @@ func transformIncludes(raw []map[string]interface{}, tableName string, include t
 			if len(coll.joined) > 0 {
 				rawJoined := coll.joined
 				refType := joined.GetReferenceType()
-				if refType == "hasMany" { rawJoined = []map[string]interface{}{ coll.joined[0] } }
+				if refType == "hasMany" {
+					rawJoined = []map[string]any{coll.joined[0]}
+				}
 				coll.data[joinedTableName] = transformIncludes(rawJoined, joinedTableName, joined)
 			} else {
-				var nulled map[string]interface{}
+				var nulled map[string]any
 				coll.data[joinedTableName] = nulled
 			}
 		}

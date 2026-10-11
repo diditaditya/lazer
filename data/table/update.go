@@ -7,11 +7,11 @@ import (
 	"lazer/laze"
 )
 
-func (table *Table) createUpdateQuery(data map[string]interface{}, params map[string][]string) (string, []interface{}) {
+func (table *Table) createUpdateQuery(data map[string]any, params map[string][]string) (string, []any) {
 	filter := table.getFilter(params)
 	whereStr, filterValues := table.createWhereStringFromFilter(filter)
 
-	values := []interface{}{}
+	values := []any{}
 	columnsStr := ""
 	counter := 0
 	for key, val := range data {
@@ -34,22 +34,20 @@ func (table *Table) createUpdateQuery(data map[string]interface{}, params map[st
 	return query, values
 }
 
-func (table *Table) Update(params map[string][]string, data map[string]interface{}) laze.Exception {
+func (table *Table) Update(params map[string][]string, data map[string]any) laze.Exception {
 	query, values := table.createUpdateQuery(data, params)
 
 	rows, err := table.Conn.Raw(query, values...).Rows()
-	defer rows.Close()
-
 	if err != nil {
 		ex := exception.FromError(err, exception.INTERNALERROR)
 		return ex
 	}
 
+	defer rows.Close()
 	return nil
 }
 
-func (table *Table) UpdateByPk(pk string, data map[string]interface{}) laze.Exception {
-
+func (table *Table) UpdateByPk(pk string, data map[string]any) laze.Exception {
 	err := table.recordExistsByPk(pk)
 	if err != nil {
 		return err
@@ -60,12 +58,12 @@ func (table *Table) UpdateByPk(pk string, data map[string]interface{}) laze.Exce
 	query, values := table.createUpdateQuery(data, param)
 
 	rows, updateErr := table.Conn.Raw(query, values...).Rows()
-	defer rows.Close()
 
 	if updateErr != nil {
 		ex := exception.FromError(updateErr, exception.INTERNALERROR)
 		return ex
 	}
 
+	defer rows.Close()
 	return nil
 }

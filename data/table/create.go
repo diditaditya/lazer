@@ -5,10 +5,10 @@ import (
 	"strings"
 )
 
-func (table *Table) Create(data map[string]interface{}) map[string]interface{} {
+func (table *Table) Create(data map[string]any) map[string]any {
 	// prepare the query
 	keys := []string{}
-	vals := []interface{}{}
+	vals := []any{}
 
 	for key, val := range data {
 		keys = append(keys, key)
@@ -27,9 +27,9 @@ func (table *Table) Create(data map[string]interface{}) map[string]interface{} {
 	raw := table.Conn.Raw(query, vals...).Row()
 
 	// create slice of interfaces to temporarily store the row
-	row := make([]interface{}, 0, len(table.RawColumns))
+	row := make([]any, 0, len(table.RawColumns))
 	for i := 0; i < len(table.RawColumns); i++ {
-		var container interface{}
+		var container any
 		container = struct{}{}
 		row = append(row, &container)
 	}

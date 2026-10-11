@@ -8,10 +8,10 @@ func (table *Table) SetAssociations(data map[string]map[string]string) {
 	table.Associations = data
 }
 
-func (table *Table) GetAssociations() []map[string]interface{} {
-	associations := []map[string]interface{}{}
+func (table *Table) GetAssociations() []map[string]any {
+	associations := []map[string]any{}
 	for _, raw := range table.Associations {
-		rel := make(map[string]interface{})
+		rel := make(map[string]any)
 		rel["field"] = raw["field"]
 		rel["referencedTable"] = raw["referencedTable"]
 		rel["referencedField"] = raw["referencedField"]

@@ -13,7 +13,7 @@ func (handler *Handler) DeleteByPk(c *gin.Context) {
 	if err != nil {
 		handler.error(err, c)
 	} else {
-		resp := map[string]interface{}{
+		resp := map[string]any{
 			"message": "deleted",
 		}
 
@@ -30,7 +30,7 @@ func (handler *Handler) Delete(c *gin.Context) {
 	if err != nil {
 		handler.error(err, c)
 	} else {
-		resp := map[string]interface{}{
+		resp := map[string]any{
 			"message": "deleted",
 		}
 

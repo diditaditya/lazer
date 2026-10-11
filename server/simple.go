@@ -18,10 +18,10 @@ func Start(app *laze.App) {
 	tableHandle := table.New(app)
 
 	// table CRUD
-	tableRouter := router.Group("/_table")
+	tableRouter := router.Group("/_tables")
 	{
-		tableRouter.GET("/", tableHandle.GetAll)
-		tableRouter.POST("/", tableHandle.Create)
+		tableRouter.GET("", tableHandle.GetAll)
+		tableRouter.POST("", tableHandle.Create)
 	}
 
 	// data CRUD
@@ -29,12 +29,12 @@ func Start(app *laze.App) {
 	{
 		dataRouter.GET("/:name", dataHandle.GetAll)
 		dataRouter.GET("/:name/:pk", dataHandle.GetByPk)
-	
+
 		dataRouter.POST("/:name", dataHandle.Create)
-	
+
 		dataRouter.PUT("/:name/:pk", dataHandle.UpdateByPk)
 		dataRouter.PUT("/:name", dataHandle.Update)
-	
+
 		dataRouter.DELETE("/:name/:pk", dataHandle.DeleteByPk)
 		dataRouter.DELETE("/:name", dataHandle.Delete)
 	}

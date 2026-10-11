@@ -80,7 +80,7 @@ func (db *DB) completeAssociations() {
 	}
 }
 
-func (db *DB) GetTableAssociations(tableName string) (rels []map[string]interface{}) {
+func (db *DB) GetTableAssociations(tableName string) (rels []map[string]any) {
 	if table, ok := db.tables[tableName]; ok {
 		rels = table.GetAssociations()
 		return rels

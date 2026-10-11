@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+
 	"github.com/gin-gonic/gin"
 
 	exception "lazer/error"
@@ -10,19 +11,17 @@ import (
 func (handler *Handler) Create(c *gin.Context) {
 	tableName := c.Param("name")
 	rawBody, err := c.GetRawData()
-
 	if err != nil {
-		c.JSON(400, map[string]interface{}{
+		c.JSON(400, map[string]any{
 			"message": "your fault..",
 			"error":   err,
 		})
 		return
 	}
 
-	mapped := make(map[string]interface{})
+	mapped := make(map[string]any)
 
 	err = json.Unmarshal(rawBody, &mapped)
-
 	if err != nil {
 		ex := exception.FromError(err, exception.INTERNALERROR)
 		handler.error(ex, c)
@@ -30,7 +29,6 @@ func (handler *Handler) Create(c *gin.Context) {
 	}
 
 	_, err = handler.app.Create(tableName, mapped)
-
 	if err != nil {
 		ex, ok := err.(*exception.Exception)
 		if ok {
@@ -42,7 +40,7 @@ func (handler *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(201, map[string]interface{}{
+	c.JSON(201, map[string]any{
 		"message": "created..",
 	})
 }

@@ -25,7 +25,7 @@ func (db *DB) isAssociation(sourceTable string, targetTable string) bool {
 func (db *DB) getAllFields(tableName string) []string {
 	fields := []string{}
 	if table, tableFound := db.tables[tableName]; tableFound {
-		for field, _ := range table.RawColumns {
+		for field := range table.RawColumns {
 			fields = append(fields, field)
 		}
 	}
@@ -46,11 +46,11 @@ func (db *DB) parseInclude(tableName string, include string, result trait.Joined
 		case "(":
 			openBracketCounter = openBracketCounter + 1
 			isInBracket = true
-			if (db.isAssociation(tableName, field)) {
+			if db.isAssociation(tableName, field) {
 				joinedTable = field
 				field = ""
 			}
-			if openBracketCounter > closingBracketCounter + 1 {
+			if openBracketCounter > closingBracketCounter+1 {
 				joinedFieldsStr = joinedFieldsStr + str
 			}
 		case ",":
@@ -62,17 +62,19 @@ func (db *DB) parseInclude(tableName string, include string, result trait.Joined
 			} else if db.isAssociation(tableName, field) {
 				joined := []trait.Joined{}
 				prevJoined := result.GetJoined()
-				if len(prevJoined) > 0 { joined = prevJoined }
+				if len(prevJoined) > 0 {
+					joined = prevJoined
+				}
 
 				joinedRes := Included{
-					tableName: field,
-					pk: db.tables[field].Pk,
-					fields: db.getAllFields(field),
-					foreignKey: db.associations[field][tableName].Field,
+					tableName:       field,
+					pk:              db.tables[field].Pk,
+					fields:          db.getAllFields(field),
+					foreignKey:      db.associations[field][tableName].Field,
 					referencedField: db.associations[field][tableName].ReferencedField,
 					referencedTable: db.associations[field][tableName].ReferencedTable,
-					referenceType: db.associations[field][tableName].Type,
-					joined: []trait.Joined{},
+					referenceType:   db.associations[field][tableName].Type,
+					joined:          []trait.Joined{},
 				}
 
 				joined = append(joined, &joinedRes)
@@ -87,17 +89,19 @@ func (db *DB) parseInclude(tableName string, include string, result trait.Joined
 
 				joined := []trait.Joined{}
 				prevJoined := result.GetJoined()
-				if len(prevJoined) > 0 { joined = prevJoined }
+				if len(prevJoined) > 0 {
+					joined = prevJoined
+				}
 
 				joinedRes := Included{
-					tableName: joinedTable,
-					pk: db.tables[joinedTable].Pk,
-					fields: []string{},
-					foreignKey: db.associations[joinedTable][tableName].Field,
+					tableName:       joinedTable,
+					pk:              db.tables[joinedTable].Pk,
+					fields:          []string{},
+					foreignKey:      db.associations[joinedTable][tableName].Field,
 					referencedField: db.associations[joinedTable][tableName].ReferencedField,
 					referencedTable: db.associations[joinedTable][tableName].ReferencedTable,
-					referenceType: db.associations[joinedTable][tableName].Type,
-					joined: []trait.Joined{},
+					referenceType:   db.associations[joinedTable][tableName].Type,
+					joined:          []trait.Joined{},
 				}
 
 				res := db.parseInclude(joinedTable, joinedFieldsStr, &joinedRes)
@@ -125,17 +129,19 @@ func (db *DB) parseInclude(tableName string, include string, result trait.Joined
 		} else if db.isAssociation(tableName, field) {
 			joined := []trait.Joined{}
 			prevJoined := result.GetJoined()
-			if len(prevJoined) > 0 { joined = prevJoined }
+			if len(prevJoined) > 0 {
+				joined = prevJoined
+			}
 
 			joinedRes := Included{
-				tableName: field,
-				pk: db.tables[field].Pk,
-				fields: db.getAllFields(field),
-				foreignKey: db.associations[field][tableName].Field,
+				tableName:       field,
+				pk:              db.tables[field].Pk,
+				fields:          db.getAllFields(field),
+				foreignKey:      db.associations[field][tableName].Field,
 				referencedField: db.associations[field][tableName].ReferencedField,
 				referencedTable: db.associations[field][tableName].ReferencedTable,
-				referenceType: db.associations[field][tableName].Type,
-				joined: []trait.Joined{},
+				referenceType:   db.associations[field][tableName].Type,
+				joined:          []trait.Joined{},
 			}
 
 			joined = append(joined, &joinedRes)

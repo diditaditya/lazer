@@ -1,18 +1,18 @@
 package definitions
 
 type TableDef struct {
-	name		string
-	columns	[]ColumnDef
+	name    string
+	columns []ColumnDef
 	options TableOpts
 }
 
 type ColumnDef struct {
-	name					string
-	dtype					string
-	allowNull			bool
-	defaultValue	interface{}
+	name         string
+	dtype        string
+	allowNull    bool
+	defaultValue any
 }
 
 type TableOpts struct {
-	primaryKey	string
+	primaryKey string
 }
