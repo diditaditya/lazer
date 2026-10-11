@@ -7,22 +7,21 @@ import (
 )
 
 type Association struct {
-	Field string
+	Field           string
 	ReferencedTable string
 	ReferencedField string
-	Type string
+	Type            string
 }
 
 func (db *DB) getAssociations(tableName string) {
 	query := db.query.GetAssociations(tableName)
 	rows, err := db.Connection.Raw(query).Rows()
-
-	defer rows.Close()
-
 	if err != nil {
 		fmt.Println("[DB] error getting table association", err)
 		return
 	}
+
+	defer rows.Close()
 
 	rels := make(map[string]*Association)
 
@@ -34,10 +33,10 @@ func (db *DB) getAssociations(tableName string) {
 		rows.Scan(&Field, &ReferencedTable, &ReferencedField)
 
 		rel := Association{
-			Field: Field,
+			Field:           Field,
 			ReferencedTable: ReferencedTable,
 			ReferencedField: ReferencedField,
-			Type: constants.AssociationBelongsTo,
+			Type:            constants.AssociationBelongsTo,
 		}
 		rels[ReferencedTable] = &rel
 	}
@@ -50,10 +49,10 @@ func (db *DB) crossCheckAssociation(tableName string) {
 	for relatedTable, rel := range rels {
 		if _, ok := db.associations[relatedTable][tableName]; !ok {
 			newRel := Association{
-				Field: rel.ReferencedField,
+				Field:           rel.ReferencedField,
 				ReferencedTable: tableName,
 				ReferencedField: rel.Field,
-				Type: constants.AssociationHasMany,
+				Type:            constants.AssociationHasMany,
 			}
 			db.associations[relatedTable][tableName] = &newRel
 		}
@@ -69,14 +68,14 @@ func (db *DB) completeAssociations() {
 		associations := map[string]map[string]string{}
 		for _, rel := range rels {
 			data := map[string]string{
-				"field": rel.Field,
+				"field":           rel.Field,
 				"referencedTable": rel.ReferencedTable,
 				"referencedField": rel.ReferencedField,
-				"type": rel.Type,		
+				"type":            rel.Type,
 			}
 			associations[rel.ReferencedTable] = data
 		}
-		
+
 		db.tables[tableName].SetAssociations(associations)
 	}
 }

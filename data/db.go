@@ -2,20 +2,22 @@ package data
 
 import (
 	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"os"
 
-	"lazer/data/table"
 	"lazer/data/query"
+	"lazer/data/table"
 	"lazer/data/trait"
 )
 
 type DB struct {
-	Config     *DBConfig
-	Connection *gorm.DB
-	query			 trait.SQLQuery
-	tables     map[string]*table.Table
+	Config       *DBConfig
+	Connection   *gorm.DB
+	query        trait.SQLQuery
+	tables       map[string]*table.Table
 	associations map[string]map[string]*Association
 }
 
@@ -30,7 +32,7 @@ func (db *DB) GetConnString() string {
 
 func (db *DB) GetTableNames() []string {
 	tableNames := []string{}
-	for name, _ := range db.tables {
+	for name := range db.tables {
 		tableNames = append(tableNames, name)
 	}
 	return tableNames
@@ -49,7 +51,6 @@ func (db *DB) GetAllTables() {
 
 	var tableNames []string
 	err := db.Connection.Raw(query).Pluck("Tables_in_db", &tableNames).Error
-
 	if err != nil {
 		fmt.Println("[DB] error getting tables in db")
 	}
@@ -76,7 +77,6 @@ func (db *DB) describeTable(tableName string) (map[string]table.RawColumn, []str
 	query := db.query.DescribeTable(tableName)
 
 	rows, err := db.Connection.Raw(query).Rows()
-
 	if err != nil {
 		fmt.Println("[DB] error describing table", tableName, err)
 	}
@@ -123,10 +123,10 @@ func newDB(config *DBConfig) *DB {
 	if config.Port == 0 {
 		config.Port = 3306
 	}
-	q := query.Get(os.Getenv("DB"))
+	q := query.Get(config.GetType())
 	db := DB{
-		Config: config,
-		query: q,
+		Config:       config,
+		query:        q,
 		associations: make(map[string]map[string]*Association),
 	}
 
@@ -134,18 +134,24 @@ func newDB(config *DBConfig) *DB {
 }
 
 func Connect() *DB {
-	config := DBConfig{
-		Host:     os.Getenv("DB_HOST"),
-		User:     os.Getenv("DB_USER"),
-		Password: os.Getenv("DB_PASSWORD"),
-		Database: os.Getenv("DB_NAME"),
+	dbPort, err := strconv.Atoi(os.Getenv("DB_PORT"))
+	if err != nil {
+		dbPort = 0
 	}
 
-	db := newDB(&config)
+	config, err := NewDbConfig(
+		os.Getenv("DB_TYPE"),
+		os.Getenv("DB_HOST"),
+		dbPort,
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+	)
+
+	db := newDB(config)
 	connString := db.GetConnString()
 
 	connection, err := gorm.Open("mysql", connString)
-
 	if err != nil {
 		panic(fmt.Sprintf("[DB] error connecting to %s\n", connString))
 	}

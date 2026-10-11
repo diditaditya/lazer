@@ -13,7 +13,7 @@ func (handler *Handler) GetByPk(c *gin.Context) {
 	if err != nil {
 		handler.error(err, c)
 	} else {
-		resp := map[string]interface{}{
+		resp := map[string]any{
 			"message": "yo",
 			"data":    data,
 		}

@@ -15,7 +15,7 @@ type Handler struct {
 func (handler *Handler) Root(c *gin.Context) {
 	data := handler.app.GetAllTables()
 
-	resp := map[string]interface{}{
+	resp := map[string]any{
 		"message": "welcome",
 		"data":    data,
 	}
